@@ -1,0 +1,6 @@
+# validating
+
+``` r
+
+library(prisonmortality)
+```

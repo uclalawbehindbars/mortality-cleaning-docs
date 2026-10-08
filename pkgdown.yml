@@ -1,0 +1,12 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  cleaning: cleaning.html
+  extracting: extracting.html
+  fetch: fetch.html
+  validating: validating.html
+last_built: 2026-10-08T18:45Z
+urls:
+  reference: https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference
+  article: https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles

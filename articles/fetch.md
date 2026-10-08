@@ -1,0 +1,6 @@
+# fetch
+
+``` r
+
+library(prisonmortality)
+```
