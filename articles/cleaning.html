@@ -70,24 +70,37 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://uclalawbehindbars.github.io/mortality-cleaning-docs">prisonmortality</a></span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/clean_source.html">clean_source()</a></code> turns one extracted source into
-release-shaped records. Run <code><a href="../reference/extract_source.html">extract_source()</a></code> first (see <a href="extracting.html">Extracting source tables</a>); cleaning reads its
-RDS and matching YAML sidecar. It never adds, drops, deduplicates, or
-combines source records. Aggregate expansion, record resolution, and
-release validation are separate stages.</p>
+<p>The cleaning stage in our records-processing pipeline takes an
+extracted source and produces a clean row for each row in the extracted
+source data. Note that one row may or may not be identical to one unique
+death; the cleaning stage does not handle duplicate or split data; it
+outputs the same number of rows in the cleaned dataframe as it
+receives.</p>
+<p>Run <code><a href="../reference/extract_source.html">extract_source()</a></code> first (see <a href="extracting.html">Extracting source tables</a>); cleaning reads its
+RDS and matching YAML sidecar. The <code><a href="../reference/clean_source.html">clean_source()</a></code> function
+never adds, drops, deduplicates, or combines source records. Aggregate
+expansion, record resolution, and release validation are separate
+stages.</p>
+<div class="section level2">
+<h2 id="how-it-works">How It Works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+</h2>
+<p>As with the extraction stage, we use a YAML-based declarative
+approach to clean data instead of relying on bespoke cleaning scripts
+for each data source. The cleaning engine abstracts common cleaning
+tasks like renaming columns, parsing numbers or dates, mapping values,
+and concatenating data from multiple columns into a consistent set of
+cleaning “rules” that we use to produce each column in the cleaned data
+fram.</p>
 <p>Declare one rule per cleaned schema field under
-<code>clean$rules</code>. The key is the output field, so do not repeat
-<code>field</code> inside the rule. Raw <code>source</code> names are
-cleaned like extraction column names; a name prefixed with
-<code>@</code> refers to another cleaned rule. References may point
-forward: cleaning resolves dependencies before processing records, then
-evaluates each rule once per record in dependency order. Independent
-rules do not depend on YAML ordering. These field-keyed rules supersede
-the ordered-rule and corrected-rule-skipping behavior described in ADR
-0005; the retired multi-output <code>name</code> rule is not supported.
-For example, when the raw <code>name</code> column contains
-<code>Dr. Jane Doe Jr.</code>, keep its recognized title and suffix in
-<code>full_name</code> by copying the raw value:</p>
+<code>clean$rules</code>, keyed by the output field name. Each rule
+declares a <code>source</code> column, which is either a reference to a
+column in the extracted dataframe or a forward reference to a column
+created by another cleaning rule. Use the <code>@</code> prefix to
+create a forward reference (i.e., <code>@death_date</code> refers to the
+<code>death_date</code> column in the cleaned data;
+<code>death_date</code> without the prefix would refer to the
+<code>death_date</code> column in the extracted data).</p>
+<p>For example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
@@ -100,42 +113,140 @@ For example, when the raw <code>name</code> column contains
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="at">    </span><span class="fu">first_name</span><span class="kw">:</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> regex</span></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?:Dr[.] )?(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="at">      </span><span class="fu">capture</span><span class="kw">:</span><span class="at"> given</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">    </span><span class="fu">last_name</span><span class="kw">:</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> regex</span></span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?:Dr[.] )?(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="at">      </span><span class="fu">capture</span><span class="kw">:</span><span class="at"> family</span></span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="at">    </span><span class="fu">full_name</span><span class="kw">:</span></span>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> copy</span></span>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span></code></pre></div>
-<p>A <code>regex</code> capture selects a named group or a 1-based group
-number. Use one rule for each name component rather than a multi-output
-name rule. Set <code>allow_empty: true</code> on a regex rule when an
-empty capture is valid (for example, a missing middle name); it returns
-<code>""</code> instead of failing. A missing or blank input remains
-missing even with <code>allow_empty: true</code>. For field-keyed rules,
-malformed nonblank values, unmapped categories, and regex nonmatches
-become typed missing values during rule evaluation. Dependent rules see
-these missing values. Each failure has a <code>source_id</code>,
-<code>record_locator</code>, <code>field</code>, and
-<code>message</code> diagnostic. Corrections are applied only after all
-rules run. A correction to the same locator and field resolves the
-failure; any unresolved failure stops cleaning without replacing an
-existing artifact pair. Resolved failures appear in the successful YAML
-sidecar’s <code>rule_diagnostics</code>, marked
-<code>resolved_by_correction: true</code> alongside the correction
-audit. Unknown sources, invalid configurations, and unexpected errors
-remain fatal.</p>
-<p>Correcting a date does not recompute its derived year or age, even
-when the original date failed. If the resulting downstream field is
-inconsistent, give it its own correction or address it during later
-validation. Corrections do not add rule dependencies. Use
-<code>clean$script</code> instead of <code>clean$rules</code> when the
-source requires a trusted repository-local
-<code>clean_records(records)</code> function. Scripts and manual
-corrections retain the same artifact contract.</p>
+<p>The cleaning engine applies rules in dependency order, meaning that
+rules referred to with forward references are generated first. In the
+example above, the cleaning engine will first produce the cleaned
+<code>death_date</code> column by running <code><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">lubridate::ymd()</a></code>
+on the <code>death_date_text</code> column in the extracted dataframe.
+Then, <code>death_year</code> is derived from the cleaned
+<code>death_date</code> column using
+<code>as.integer(format(death_date, "%Y"))</code>.</p>
+<p>Likewise, the cleaning engine produces <code>full_name</code> column
+by simply copying the values from the <code>name</code> column in the
+extracted data; this is effectively the same thing as using
+<code><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">dplyr::rename</a></code> to update a column name.</p>
+<p>The <code>first_name</code> and <code>last_name</code> cleaning rules
+use regex extractions to get the first and last names, respectively from
+the full name text. A regex cleaning rule must specify the extraction
+<code>pattern</code> and <code>capture</code> group (using either a
+text-based or numeric index). Using text-based capture groups can help
+improve readability if you have a particularly complicated regex, but
+numeric capture groups work just fine if you have a simple regex and
+want to save some extra typing.</p>
+</div>
+<div class="section level2">
+<h2 id="aggregate-data">Aggregate data<a class="anchor" aria-label="anchor" href="#aggregate-data"></a>
+</h2>
+<p>Some states hate transparency, so they only provided us with
+aggregate counts of deaths with varying degrees of specificity. For
+sources with aggregate counts, the extraction stage produces a dataframe
+with one row per count, with all values stored as characters; for
+instance, <code>"2025","Male","25","Row 5"</code> might be the
+<code>year</code>, <code>sex</code>, <code>aggregate_count</code>, and
+<code>record_locator</code> for one count.</p>
+<p>The cleaning stage does not disagreggate these aggregate counts.
+Instead, it merely converts them to the correct column names and data
+types; cleaning the example row above would produce
+<code>2025,"Male",25,"Source ID:Row 5"</code> with names
+<code>death_year</code>, <code>sex</code>, <code>aggregate_count</code>,
+and <code>source_record</code>. Disaggregation will be applied at a
+later stage in the pipeline.</p>
+<p>To ensure a consistent API for the reshaping engine, the cleaning
+engine produces <code>aggregate_count</code> values for <em>all</em>
+sources. If the cleaning config defines an <code>aggregate_count</code>
+rule, this will be generated from the extracted data; otherwise, it
+assumes the data is already individualized and sets
+<code>aggregate_count</code> to <code>1</code> for each row.</p>
+</div>
+<div class="section level2">
+<h2 id="handling-edge-cases">Handling Edge Cases<a class="anchor" aria-label="anchor" href="#handling-edge-cases"></a>
+</h2>
+<p>Data is messy, so it might not always be possible to apply a
+consistent rule to generate a cleaned column. Maybe a correctional
+agency used <code>&lt;month_name&gt; &lt;day&gt;, &lt;year&gt;</code> to
+format dates in 99% of columns, but for one random column, they
+inexplicably used <code>YYYY-MM-DD</code> format. Instead of trying to
+create rules that handle every imaginable edge case, the default
+behavior is for the cleaning engine to produce a typed <code>NA</code>
+value for cases that don’t fit the configured rule. The validation
+engine (not yet configured) will flag unexpected <code>NA</code> values,
+allowing us to adjust the cleaning config to handle them
+appropriately.</p>
+<p>For rules with a small number of failing edge cases, the simplest
+approach is to add a <code>corrections</code> section to your cleaning
+config. The corrections section identifies individual cells that require
+manual fixes and documents their replacements values,along with the
+reason for replacing them. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span><span class="at"> ...</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">corrections</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A5:H5</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> death_date</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> 2025-05-05</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used a nonstandard format.</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A26:H26</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> last_name</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> Smith</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used unusual formatting for the generational suffix (SMITHIII).</span></span></code></pre></div>
+<p>As illustrated above, each correction should specify the
+<code>record_locator</code> for the row needing correction, the
+<code>field</code> that needs correcting, the <code>replacement</code>
+value, and the human-readable <code>reason</code> for replacing it.</p>
+<p>Corrections are applied only after all rules run. Resolved failures
+appear in the successful YAML sidecar’s <code>rule_diagnostics</code>,
+marked <code>resolved_by_correction: true</code> alongside the
+correction audit. Unknown sources, invalid configurations, and
+unexpected errors remain fatal.</p>
+<p>Correcting a field (such as a date) does not recompute its derived
+fields (such as death year or death age) If the resulting downstream
+field is inconsistent, give it its own correction or address it during
+later validation. Corrections do not add rule dependencies.</p>
+</div>
+<div class="section level2">
+<h2 id="cleaning-scripts">Cleaning scripts<a class="anchor" aria-label="anchor" href="#cleaning-scripts"></a>
+</h2>
+<p>In some cases, the source data is just too darn messy to play by the
+rules. While you’re encouraged to try using the rules-based cleaning
+methods first (they’ll usually work), sometimes we need a loose-cannon
+data wrangler who gets <em>results</em>.</p>
+<p>In such instances, you can skip the rules-based cleaning by adding a
+<code>script</code> key to the cleaning config instead of
+<code>rules</code>. The <code>script</code> key should include a
+repo-local path to a file that defines an R function called
+<code>clean_records</code> that takes a <code>records</code> dataframe
+as input and outputs a clean dataframe with the same number of rows as
+output. Whatever you do inside the function is your business, as long as
+it gets the job done, but please note that the function runs as trusted
+R code, so avoid doing anything that will create unexpected
+side-effects, such as creating or deleting files.</p>
+<p><code>library</code> calls may not work as expected (I’m not totally
+sure why – can experiment with it more if this becomes a quality-of-life
+hazard), so the best practice is to use functions from other packages
+with the <code>&lt;package_name&gt;::&lt;function_name&gt;</code>
+format, such as <code>df |&gt; dplyr::mutate(foo = bar + 1)</code>
+instead of <code>df |&gt; mutate(foo = bar + 1)</code>.</p>
+<p>Cleaning scripts are only responsible for producing fields that would
+otherwise appear in a rules-based config. In other words, if there’s no
+<code>first_name</code> available in a source record, you don’t need to
+write a <code>clean_records</code> function that produces an empty
+<code>first_name</code> column; the cleaning engine will do that for
+you.</p>
+<p><strong>NOTE</strong>: I realized belatedly that it would make sense
+to pass the source config object to cleaning scripts, so I am planning
+to update the package to allow for doing so. To prepare for that change,
+you can define <code>clean_records</code> with the signature
+<code>clean_records(records, config = NULL)</code>.</p>
+</div>
 <div class="section level2">
 <h2 id="running-cleaning-and-inspecting-artifacts">Running cleaning and inspecting artifacts<a class="anchor" aria-label="anchor" href="#running-cleaning-and-inspecting-artifacts"></a>
 </h2>
@@ -144,7 +255,7 @@ Raw <code>source</code> and <code>sources</code> accept either original
 column names or cleaned extracted names. The <code>years</code> in
 source configuration describe the source, not each row’s death year.
 Once extraction has produced the default RDS and sidecar:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_source.html">clean_source</a></span><span class="op">(</span><span class="st">"path/to/source.yaml"</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">status</span>       <span class="co"># "written" or "skipped"</span></span>
 <span><span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">rds</span><span class="op">)</span></span>
@@ -180,13 +291,12 @@ validation.</p>
 <p>A rule key must be a cleaned schema field or
 <code>aggregate_count</code>, not an engine-owned field such as
 <code>state</code> or <code>record_locator</code>. A rule has
-<code>type</code> and its inputs, but no <code>field</code> or
-<code>fields</code>. Duplicate YAML keys and dependency cycles fail
-before processing rows. Missing or empty extracted strings become
-missing input. <code>blank_values</code> adds exact aliases per rule
-after extraction’s text normalization. Explicit maps must list every
-nonblank source value, including identity mappings. Common types
-are:</p>
+<code>type</code> and its inputs (see below). Duplicate YAML keys and
+dependency cycles fail before processing rows. Missing or empty
+extracted strings become missing input. <code>blank_values</code> adds
+exact aliases per rule after extraction’s text normalization. Explicit
+maps must list every nonblank source value, including identity mappings.
+Common types are:</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -212,8 +322,9 @@ row.</td>
 <tr class="odd">
 <td align="left"><code>default</code></td>
 <td align="left">
-<code>source</code>, <code>default_value</code>: fill
-missing input only; unexpected nonblank input is an error.</td>
+<code>source</code>, <code>default_value</code>: copy
+and coerce nonblank input; fill missing input with
+<code>default_value</code>.</td>
 </tr>
 <tr class="even">
 <td align="left"><code>map</code></td>
@@ -288,62 +399,41 @@ race categories.</td>
 <code>date</code> rules for <code>death_date</code> and
 <code>birth_date</code>, followed by
 <code>death_age: {type: age, sources: ['@birth_date', '@death_date']}</code>.
-Forward references work, but corrections cannot change dependent values.
-<code>race</code> is a list field: a missing input remains missing,
-while an explicitly mapped empty list represents a reported empty set. A
-complex name requiring reordering or interpretation may instead need a
-script or correction.</p>
+<code>race</code> is a list field (which we might change): a missing
+input remains missing, while an explicitly mapped empty list represents
+a reported empty set. A complex name requiring reordering or
+interpretation may instead need a script or correction.</p>
 <div class="section level3">
 <h3 id="excel-dates-and-times">Excel dates and times<a class="anchor" aria-label="anchor" href="#excel-dates-and-times"></a>
 </h3>
 <p>Extraction retains Excel serials as character values.
 <code>date_from_excel</code> and <code>time</code> use
 <code><a href="../reference/get_excel_epoch_origin.html">get_excel_epoch_origin()</a></code> to read the original workbook’s
-1900 or 1904 epoch; never configure <code>date_system</code>. The
-workbook must still exist at the config-derived fetched path or be
-supplied as <code>source_file</code> to <code><a href="../reference/clean_source.html">clean_source()</a></code>. Its
-MD5 is checked against <code>source_md5</code>, including on cache hits.
-For a fractional serial, <code>date_from_excel</code> requires
+1900 or 1904 epoch. The workbook must still exist at the config-derived
+fetched path or be supplied as <code>source_file</code> to
+<code><a href="../reference/clean_source.html">clean_source()</a></code>. Its MD5 is checked against
+<code>source_md5</code>, including on cache hits. For a fractional
+serial, <code>date_from_excel</code> requires
 <code>date_only: true</code> to discard time explicitly; a separate
 <code>time</code> rule can preserve the fraction:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_year</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">'@death_date'</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">    </span><span class="fu">death_date</span><span class="kw">:</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_from_excel</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="at">      </span><span class="fu">date_only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="at">    </span><span class="fu">death_time</span><span class="kw">:</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> time</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_year</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">'@death_date'</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">    </span><span class="fu">death_date</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_from_excel</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="fu">date_only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">    </span><span class="fu">death_time</span><span class="kw">:</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> time</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span></code></pre></div>
 <p>Use <code>date</code> with a declared <code>format</code> for text;
 no date-format or workbook-epoch guessing is performed. Unsupported
 workbook types such as <code>.xls</code> cannot supply an epoch through
-<code>openxlsx</code>.</p>
+<code>openxlsx</code>, so we may need to add a manual
+<code>date_epoch</code> override feature.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="corrections-and-scripts">Corrections and scripts<a class="anchor" aria-label="anchor" href="#corrections-and-scripts"></a>
-</h2>
-<p><code>clean$corrections</code> is available with either rules or
-scripts. Each correction identifies exactly one
-<code>(source_id, record_locator, field)</code> and supplies a typed
-<code>replacement</code> and human-readable <code>reason</code>. Use
-actual locators from the extracted RDS. Stale or ambiguous locators,
-repeated corrections to the same field/row, protected targets, and
-invalid replacements fail. A corrected successful declarative rule is
-still evaluated and its prior value is audited; an errored rule yields
-typed missing and a resolved diagnostic. A correction cannot resolve
-another field’s error, and it never recomputes downstream rules.</p>
-<p>For scripts, set <code>clean$script</code> instead of
-<code>clean$rules</code> to a repository-local path. The script defines
-<code>clean_records(records)</code>, receives the all-character
-extracted data frame, and returns one cleaned-schema data frame row per
-input row. The engine checks row count, output columns, and provenance
-before applying corrections. Scripts are trusted reviewable code, not
-sandboxed; they should not download data or modify other files.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
