@@ -134,8 +134,8 @@ inconsistent, give it its own correction or address it during later
 validation. Corrections do not add rule dependencies. Use
 <code>clean$script</code> instead of <code>clean$rules</code> when the
 source requires a trusted repository-local
-<code>clean_records(records, skip_mask)</code> function. Scripts and
-manual corrections retain the same artifact contract.</p>
+<code>clean_records(records)</code> function. Scripts and manual
+corrections retain the same artifact contract.</p>
 <div class="section level2">
 <h2 id="running-cleaning-and-inspecting-artifacts">Running cleaning and inspecting artifacts<a class="anchor" aria-label="anchor" href="#running-cleaning-and-inspecting-artifacts"></a>
 </h2>
@@ -339,14 +339,10 @@ typed missing and a resolved diagnostic. A correction cannot resolve
 another field’s error, and it never recomputes downstream rules.</p>
 <p>For scripts, set <code>clean$script</code> instead of
 <code>clean$rules</code> to a repository-local path. The script defines
-<code>clean_records(records, skip_mask)</code>, receives the
-all-character extracted data frame, and returns one cleaned-schema data
-frame row per input row. <code>skip_mask</code> is a logical matrix
-indexed by row and target field with <code>TRUE</code> for cells the
-engine will correct. It contains no replacement values, so scripts can
-avoid work for corrected fields without applying corrections themselves.
-The engine checks row count, output columns, and provenance before
-applying corrections. Scripts are trusted reviewable code, not
+<code>clean_records(records)</code>, receives the all-character
+extracted data frame, and returns one cleaned-schema data frame row per
+input row. The engine checks row count, output columns, and provenance
+before applying corrections. Scripts are trusted reviewable code, not
 sandboxed; they should not download data or modify other files.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -73,8 +73,8 @@ the original date failed. If the resulting downstream field is
 inconsistent, give it its own correction or address it during later
 validation. Corrections do not add rule dependencies. Use `clean$script`
 instead of `clean$rules` when the source requires a trusted
-repository-local `clean_records(records, skip_mask)` function. Scripts
-and manual corrections retain the same artifact contract.
+repository-local `clean_records(records)` function. Scripts and manual
+corrections retain the same artifact contract.
 
 ## Running cleaning and inspecting artifacts
 
@@ -197,13 +197,9 @@ typed missing and a resolved diagnostic. A correction cannot resolve
 another field’s error, and it never recomputes downstream rules.
 
 For scripts, set `clean$script` instead of `clean$rules` to a
-repository-local path. The script defines
-`clean_records(records, skip_mask)`, receives the all-character
-extracted data frame, and returns one cleaned-schema data frame row per
-input row. `skip_mask` is a logical matrix indexed by row and target
-field with `TRUE` for cells the engine will correct. It contains no
-replacement values, so scripts can avoid work for corrected fields
-without applying corrections themselves. The engine checks row count,
-output columns, and provenance before applying corrections. Scripts are
-trusted reviewable code, not sandboxed; they should not download data or
-modify other files.
+repository-local path. The script defines `clean_records(records)`,
+receives the all-character extracted data frame, and returns one
+cleaned-schema data frame row per input row. The engine checks row
+count, output columns, and provenance before applying corrections.
+Scripts are trusted reviewable code, not sandboxed; they should not
+download data or modify other files.
