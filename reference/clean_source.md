@@ -17,10 +17,11 @@ missing; a nonmatch still fails. Rule failures are recorded by locator
 and field; corrections run after all rules and resolve only failures for
 that same locator and field. Dependent rules are not re-evaluated after
 corrections. Alternatively `clean$script` names a trusted
-repository-local R script defining `clean_records(records, skip_mask)`.
-Scripts should not download data or modify other files; they are
-reviewable code, not sandboxed. `clean$corrections` contains
-record_locator, field, replacement, and reason mappings.
+repository-local R script defining `clean_records(records)`, where
+`records` is the extracted data frame. Scripts should not download data
+or modify other files; they are reviewable code, not sandboxed.
+`clean$corrections` contains record_locator, field, replacement, and
+reason mappings.
 
 ## Usage
 

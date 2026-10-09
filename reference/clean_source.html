@@ -16,8 +16,8 @@ failures are recorded by locator and field;
 corrections run after all rules and resolve only failures for that same
 locator and field. Dependent rules are not re-evaluated after corrections.
 Alternatively clean$script names a trusted repository-local R script
-defining clean_records(records, skip_mask). Scripts should not download
-data or modify other files; they
+defining clean_records(records), where records is the extracted data
+frame. Scripts should not download data or modify other files; they
 are reviewable code, not sandboxed. clean$corrections contains
 record_locator, field, replacement, and reason mappings.'><meta property="og:description" content='clean$rules is a mapping keyed by cleaned schema field. Each rule has a
 type and rule-specific arguments, but no repeated field declaration.
@@ -36,8 +36,8 @@ failures are recorded by locator and field;
 corrections run after all rules and resolve only failures for that same
 locator and field. Dependent rules are not re-evaluated after corrections.
 Alternatively clean$script names a trusted repository-local R script
-defining clean_records(records, skip_mask). Scripts should not download
-data or modify other files; they
+defining clean_records(records), where records is the extracted data
+frame. Scripts should not download data or modify other files; they
 are reviewable code, not sandboxed. clean$corrections contains
 record_locator, field, replacement, and reason mappings.'></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -98,8 +98,8 @@ failures are recorded by locator and field;
 corrections run after all rules and resolve only failures for that same
 locator and field. Dependent rules are not re-evaluated after corrections.
 Alternatively <code>clean$script</code> names a trusted repository-local R script
-defining <code>clean_records(records, skip_mask)</code>. Scripts should not download
-data or modify other files; they
+defining <code>clean_records(records)</code>, where <code>records</code> is the extracted data
+frame. Scripts should not download data or modify other files; they
 are reviewable code, not sandboxed. <code>clean$corrections</code> contains
 record_locator, field, replacement, and reason mappings.</p>
     </div>
