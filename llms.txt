@@ -1,34 +1,11 @@
-# prisonmortality
+# dicr - A data pipeline for deaths in custody
 
-This repository contains the code and configuration used to produce UCLA
-Law Behind Bars’ annual release of in-custody mortality data for each
-state prison system in the United States, as well as the federal Bureau
-of Prisons.
+This repository contains a data-cleaning pipeline for downloading and
+processing in-custody death records obtained by UCLA Law’s Behind Bars
+Data Project.
 
 **NOTE FOR FUTURE: MOST OF THE BELOW SHOULD PROBABLY GO IN A
 `CONTRIBUTING.MD` FILE.**
-
-## Repository Design Principles
-
-This repository combines two discrete codebases:
-
-1.  A reusable internal R package that holds code that functions
-    independently of any specific state or source record.
-2.  A pipeline directory that includes YAML configuration and
-    source-specific R code for processing records from each state.
-
-We do not include underlying source records in the repository itself for
-a few reasons:
-
-1.  Git is poorly designed for storing binary files that do not change
-    much over time.
-2.  Including the source files would add unnecessary bloat to the
-    repository size, making it more difficult for others to clone and
-    use our code.
-
-Instead, we make source files available in a public archive (TO
-IMPLEMENT). Running the full pipeline for a state will download files as
-needed.
 
 ## Development Setup
 
@@ -72,43 +49,32 @@ will build the development container with Docker and install all R
 packages required to run the code. If you insist on using a local R
 setup, you should run `just setup-local` instead.
 
-## Source Data
-
-As noted above, we do not include source data files directly in this
-repository. Instead, these files will be accessible in a Dataverse
-instance (details TK) and downloaded to a local cache on an as-needed
-basis.
-
-The source configuration files for each record contains the Dataverse
-UNF (or DOI?) for the current version of the source file on Dataverse,
-as well as the MD5 (or SHA256?) sum to confirm file integrity.
-
 # Package index
 
 ## All functions
 
-- [`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
+- [`clean_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/clean_source.md)
   : Clean one extracted source without changing its record cardinality.
 
-- [`expand_file_destination()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/expand_file_destination.md)
+- [`expand_file_destination()`](https://uclalawbehindbars.github.io/dicr-docs/reference/expand_file_destination.md)
   : Expand a file destination template string
 
-- [`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
+- [`extract_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/extract_source.md)
   : Extract a fetched source artifact.
 
-- [`fetch_source_file()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/fetch_source_file.md)
+- [`fetch_source_file()`](https://uclalawbehindbars.github.io/dicr-docs/reference/fetch_source_file.md)
   : Fetch a source file from a Dataverse server.
 
-- [`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/get_excel_epoch_origin.md)
+- [`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/dicr-docs/reference/get_excel_epoch_origin.md)
   : Determine an Excel file's epoch date origin.
 
-- [`load_source_config()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/load_source_config.md)
+- [`load_source_config()`](https://uclalawbehindbars.github.io/dicr-docs/reference/load_source_config.md)
   : Load a source file configuration from YAML.
 
-- [`validate_source_file_md5()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source_file_md5.md)
+- [`validate_source_file_md5()`](https://uclalawbehindbars.github.io/dicr-docs/reference/validate_source_file_md5.md)
   : Validate the source file MD5 matches the configured value.
 
-- [`validate_source_md5_config()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source_md5_config.md)
+- [`validate_source_md5_config()`](https://uclalawbehindbars.github.io/dicr-docs/reference/validate_source_md5_config.md)
   :
 
   Ensure that the source config contains a nonempty `source_md5`.
@@ -117,8 +83,8 @@ as well as the MD5 (or SHA256?) sum to confirm file integrity.
 
 ### All vignettes
 
-- [cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.md):
+- [cleaning](https://uclalawbehindbars.github.io/dicr-docs/articles/cleaning.md):
 - [Extracting source
-  tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md):
-- [fetch](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/fetch.md):
-- [validating](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/validating.md):
+  tables](https://uclalawbehindbars.github.io/dicr-docs/articles/extracting.md):
+- [fetch](https://uclalawbehindbars.github.io/dicr-docs/articles/fetch.md):
+- [validating](https://uclalawbehindbars.github.io/dicr-docs/articles/validating.md):

@@ -7,12 +7,12 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/uclalawbehindbars/prison-mortality-data-preparation/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/uclalawbehindbars/dicr/blob/main/inst/CITATION)
 
-Project ULBBD (2026). “U.S. Prison Mortality Data.”
+Project ULBBD (2026). “dicr: An in-custody death data-cleaning package.”
 
     @Misc{,
-      title = {U.S. Prison Mortality Data},
+      title = {dicr: An in-custody death data-cleaning package},
       author = {UCLA Law Behind Bars Data Project},
       year = {2026},
     }

@@ -2,7 +2,7 @@
 
 ``` r
 
-library(prisonmortality)
+library(dicr)
 ```
 
 The cleaning stage in our records-processing pipeline takes an extracted
@@ -12,11 +12,11 @@ the cleaning stage does not handle duplicate or split data; it outputs
 the same number of rows in the cleaned dataframe as it receives.
 
 Run
-[`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
+[`extract_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/extract_source.md)
 first (see [Extracting source
-tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md));
+tables](https://uclalawbehindbars.github.io/dicr-docs/articles/extracting.md));
 cleaning reads its RDS and matching YAML sidecar. The
-[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
+[`clean_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/clean_source.md)
 function never adds, drops, deduplicates, or combines source records.
 Aggregate expansion, record resolution, and release validation are
 separate stages.
@@ -204,7 +204,7 @@ sidecar:
 
 ``` r
 
-result <- clean_source("path/to/source.yaml")
+result <- clean_source("path/to/source.yaml", schema_path = "path/to/datapackage.json")
 result$status       # "written" or "skipped"
 rows <- readRDS(result$rds)
 sidecar <- yaml::read_yaml(result$yaml)
@@ -215,10 +215,12 @@ The default extracted and cleaned locations are respectively
 `cleaned/{state}/{vintage}_{years}/{source_id}.rds`, each with an
 adjacent `.yaml` sidecar. Pass `extracted_file` and
 `cleaned_destination` for custom locations; the latter is a directory,
-not an output filename. The cleaned RDS has the fields in
-`datapackage.json` except `death_id`, plus `aggregate_count` and row
-provenance. Unpopulated fields remain typed missing; raw source columns
-remain only in the extracted artifact. `state` and the default
+not an output filename. Pass the release Data Package as `schema_path`;
+when omitted, cleaning looks for `datapackage.json` next to the source
+config, not in the package or project root. The cleaned RDS has the
+fields in the supplied schema except `death_id`, plus `aggregate_count`
+and row provenance. Unpopulated fields remain typed missing; raw source
+columns remain only in the extracted artifact. `state` and the default
 individual `aggregate_count = 1` are engine supplied. Each row’s
 `source_record` is `<source_id>:<record_locator>`. Source IDs cannot
 contain colons, so the first colon separates the ID from the entire
@@ -271,11 +273,11 @@ instead need a script or correction.
 
 Extraction retains Excel serials as character values. `date_from_excel`
 and `time` use
-[`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/get_excel_epoch_origin.md)
+[`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/dicr-docs/reference/get_excel_epoch_origin.md)
 to read the original workbook’s 1900 or 1904 epoch. The workbook must
 still exist at the config-derived fetched path or be supplied as
 `source_file` to
-[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md).
+[`clean_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/clean_source.md).
 Its MD5 is checked against `source_md5`, including on cache hits. For a
 fractional serial, `date_from_excel` requires `date_only: true` to
 discard time explicitly; a separate `time` rule can preserve the

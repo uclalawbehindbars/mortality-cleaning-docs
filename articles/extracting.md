@@ -2,7 +2,7 @@
 
 ``` r
 
-library(prisonmortality)
+library(dicr)
 ```
 
 Extraction converts one fetched source artifact and one YAML source
@@ -246,7 +246,7 @@ into ranges, for example `'Deaths 2020'!A2:B2,'Deaths 2020'!D2`.
 Use `html` for **one saved local page per source config**, not a live
 URL. Save/fetch the page separately, configure its file path and MD5,
 then call
-[`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
+[`extract_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/extract_source.md)
 with that local artifact. Extraction does not fetch a page, load assets,
 follow links (even to other saved files), or paginate. The tracked
 announcement-page fixture contains ten teasers, selected here as

@@ -2,5 +2,5 @@
 
 ``` r
 
-library(prisonmortality)
+library(dicr)
 ```

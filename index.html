@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>UCLA Law Behind Bars Data Project Prison Mortality Data Cleaning • prisonmortality</title>
+<title>dicr - A data pipeline for deaths in custody • dicr</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="UCLA Law Behind Bars Data Project Prison Mortality Data Cleaning">
-<meta name="description" content="Code for extracting, cleaning, and validating prison mortality data.">
-<meta property="og:description" content="Code for extracting, cleaning, and validating prison mortality data.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="dicr - A data pipeline for deaths in custody">
+<meta name="description" content="Code for extracting, cleaning, and validating carceral mortality data.">
+<meta property="og:description" content="Code for extracting, cleaning, and validating carceral mortality data.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +20,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">prisonmortality</a>
+    <a class="navbar-brand me-2" href="index.html">dicr</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
 
@@ -47,7 +47,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/uclalawbehindbars/prison-mortality-data-preparation/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/uclalawbehindbars/dicr/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -56,27 +56,12 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="prisonmortality">prisonmortality<a class="anchor" aria-label="anchor" href="#prisonmortality"></a>
+<div class="page-header"><h1 id="dicr---a-data-pipeline-for-deaths-in-custody">dicr - A data pipeline for deaths in custody<a class="anchor" aria-label="anchor" href="#dicr---a-data-pipeline-for-deaths-in-custody"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>This repository contains the code and configuration used to produce UCLA Law Behind Bars’ annual release of in-custody mortality data for each state prison system in the United States, as well as the federal Bureau of Prisons.</p>
+<p>This repository contains a data-cleaning pipeline for downloading and processing in-custody death records obtained by UCLA Law’s Behind Bars Data Project.</p>
 <p><strong>NOTE FOR FUTURE: MOST OF THE BELOW SHOULD PROBABLY GO IN A <code>CONTRIBUTING.MD</code> FILE.</strong></p>
-<div class="section level2">
-<h2 id="repository-design-principles">Repository Design Principles<a class="anchor" aria-label="anchor" href="#repository-design-principles"></a>
-</h2>
-<p>This repository combines two discrete codebases:</p>
-<ol style="list-style-type: decimal">
-<li>A reusable internal R package that holds code that functions independently of any specific state or source record.</li>
-<li>A pipeline directory that includes YAML configuration and source-specific R code for processing records from each state.</li>
-</ol>
-<p>We do not include underlying source records in the repository itself for a few reasons:</p>
-<ol style="list-style-type: decimal">
-<li>Git is poorly designed for storing binary files that do not change much over time.</li>
-<li>Including the source files would add unnecessary bloat to the repository size, making it more difficult for others to clone and use our code.</li>
-</ol>
-<p>Instead, we make source files available in a public archive (TO IMPLEMENT). Running the full pipeline for a state will download files as needed.</p>
-</div>
 <div class="section level2">
 <h2 id="development-setup">Development Setup<a class="anchor" aria-label="anchor" href="#development-setup"></a>
 </h2>
@@ -108,18 +93,12 @@
 <p>After installing these tools, you just need to run <code>just setup</code>, which will build the development container with Docker and install all R packages required to run the code. If you insist on using a local R setup, you should run <code>just setup-local</code> instead.</p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="source-data">Source Data<a class="anchor" aria-label="anchor" href="#source-data"></a>
-</h2>
-<p>As noted above, we do not include source data files directly in this repository. Instead, these files will be accessible in a Dataverse instance (details TK) and downloaded to a local cache on an as-needed basis.</p>
-<p>The source configuration files for each record contains the Dataverse UNF (or DOI?) for the current version of the source file on Dataverse, as well as the MD5 (or SHA256?) sum to confirm file integrity.</p>
-</div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/uclalawbehindbars/prison-mortality-data-preparation/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/uclalawbehindbars/prison-mortality-data-preparation/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/uclalawbehindbars/dicr/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/uclalawbehindbars/dicr/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -135,7 +114,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing prisonmortality</a></li>
+<li><a href="authors.html#citation">Citing dicr</a></li>
 </ul>
 </div>
 

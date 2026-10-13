@@ -1,34 +1,11 @@
-# prisonmortality
+# dicr - A data pipeline for deaths in custody
 
-This repository contains the code and configuration used to produce UCLA
-Law Behind Bars’ annual release of in-custody mortality data for each
-state prison system in the United States, as well as the federal Bureau
-of Prisons.
+This repository contains a data-cleaning pipeline for downloading and
+processing in-custody death records obtained by UCLA Law’s Behind Bars
+Data Project.
 
 **NOTE FOR FUTURE: MOST OF THE BELOW SHOULD PROBABLY GO IN A
 `CONTRIBUTING.MD` FILE.**
-
-## Repository Design Principles
-
-This repository combines two discrete codebases:
-
-1.  A reusable internal R package that holds code that functions
-    independently of any specific state or source record.
-2.  A pipeline directory that includes YAML configuration and
-    source-specific R code for processing records from each state.
-
-We do not include underlying source records in the repository itself for
-a few reasons:
-
-1.  Git is poorly designed for storing binary files that do not change
-    much over time.
-2.  Including the source files would add unnecessary bloat to the
-    repository size, making it more difficult for others to clone and
-    use our code.
-
-Instead, we make source files available in a public archive (TO
-IMPLEMENT). Running the full pipeline for a state will download files as
-needed.
 
 ## Development Setup
 
@@ -71,14 +48,3 @@ After installing these tools, you just need to run `just setup`, which
 will build the development container with Docker and install all R
 packages required to run the code. If you insist on using a local R
 setup, you should run `just setup-local` instead.
-
-## Source Data
-
-As noted above, we do not include source data files directly in this
-repository. Instead, these files will be accessible in a Dataverse
-instance (details TK) and downloaded to a local cache on an as-needed
-basis.
-
-The source configuration files for each record contains the Dataverse
-UNF (or DOI?) for the current version of the source file on Dataverse,
-as well as the MD5 (or SHA256?) sum to confirm file integrity.

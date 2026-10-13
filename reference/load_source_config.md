@@ -17,4 +17,4 @@ load_source_config(path)
 ## Value
 
 A list suitable for use as the `source_config` argument to
-[`fetch_source_file()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/fetch_source_file.md).
+[`fetch_source_file()`](https://uclalawbehindbars.github.io/dicr-docs/reference/fetch_source_file.md).

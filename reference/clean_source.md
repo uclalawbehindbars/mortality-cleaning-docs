@@ -31,7 +31,8 @@ clean_source(
   extracted_file = NULL,
   cleaned_destination = "{project_root}/cleaned/{state}/{vintage}_{years}",
   force = FALSE,
-  source_file = NULL
+  source_file = NULL,
+  schema_path = file.path(dirname(config_path), "datapackage.json")
 )
 ```
 
@@ -57,6 +58,11 @@ clean_source(
 
   Optional original Excel workbook path for serial rules. Defaults to
   the config-derived fetched source path.
+
+- schema_path:
+
+  Path to the release Data Package schema. Defaults to
+  `datapackage.json` alongside `config_path`.
 
 ## Value
 

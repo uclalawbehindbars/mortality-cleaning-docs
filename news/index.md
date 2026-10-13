@@ -1,5 +1,5 @@
 # Changelog
 
-## prisonmortality 0.0.1
+## dicr 0.0.1
 
 - Initial package scaffolding.
