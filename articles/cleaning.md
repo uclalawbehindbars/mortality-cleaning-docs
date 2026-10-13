@@ -216,15 +216,15 @@ The default extracted and cleaned locations are respectively
 adjacent `.yaml` sidecar. Pass `extracted_file` and
 `cleaned_destination` for custom locations; the latter is a directory,
 not an output filename. Pass the release Data Package as `schema_path`;
-when omitted, cleaning looks for `datapackage.json` next to the source
-config, not in the package or project root. The cleaned RDS has the
-fields in the supplied schema except `death_id`, plus `aggregate_count`
-and row provenance. Unpopulated fields remain typed missing; raw source
-columns remain only in the extracted artifact. `state` and the default
-individual `aggregate_count = 1` are engine supplied. Each row’s
-`source_record` is `<source_id>:<record_locator>`. Source IDs cannot
-contain colons, so the first colon separates the ID from the entire
-locator, including any embedded colons.
+when omitted, cleaning looks for `datapackage.json` in the project root,
+not next to the source config or inside the package. The cleaned RDS has
+the fields in the supplied schema except `death_id`, plus
+`aggregate_count` and row provenance. Unpopulated fields remain typed
+missing; raw source columns remain only in the extracted artifact.
+`state` and the default individual `aggregate_count = 1` are engine
+supplied. Each row’s `source_record` is `<source_id>:<record_locator>`.
+Source IDs cannot contain colons, so the first colon separates the ID
+from the entire locator, including any embedded colons.
 
 The sidecar records counts, cache identity, checksum, applied correction
 audit, and resolved rule diagnostics. A valid pair is skipped unless

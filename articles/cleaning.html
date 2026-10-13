@@ -267,9 +267,9 @@ with an adjacent <code>.yaml</code> sidecar. Pass
 <code>extracted_file</code> and <code>cleaned_destination</code> for
 custom locations; the latter is a directory, not an output filename.
 Pass the release Data Package as <code>schema_path</code>; when omitted,
-cleaning looks for <code>datapackage.json</code> next to the source
-config, not in the package or project root. The cleaned RDS has the
-fields in the supplied schema except <code>death_id</code>, plus
+cleaning looks for <code>datapackage.json</code> in the project root,
+not next to the source config or inside the package. The cleaned RDS has
+the fields in the supplied schema except <code>death_id</code>, plus
 <code>aggregate_count</code> and row provenance. Unpopulated fields
 remain typed missing; raw source columns remain only in the extracted
 artifact. <code>state</code> and the default individual

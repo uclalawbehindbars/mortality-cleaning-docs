@@ -32,7 +32,7 @@ clean_source(
   cleaned_destination = "{project_root}/cleaned/{state}/{vintage}_{years}",
   force = FALSE,
   source_file = NULL,
-  schema_path = file.path(dirname(config_path), "datapackage.json")
+  schema_path = file.path(project_root(), "datapackage.json")
 )
 ```
 
@@ -62,7 +62,7 @@ clean_source(
 - schema_path:
 
   Path to the release Data Package schema. Defaults to
-  `datapackage.json` alongside `config_path`.
+  `datapackage.json` in project root.
 
 ## Value
 
