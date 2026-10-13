@@ -12,11 +12,11 @@ the cleaning stage does not handle duplicate or split data; it outputs
 the same number of rows in the cleaned dataframe as it receives.
 
 Run
-[`extract_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/extract_source.md)
+[`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
 first (see [Extracting source
-tables](https://uclalawbehindbars.github.io/dicr-docs/articles/extracting.md));
+tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md));
 cleaning reads its RDS and matching YAML sidecar. The
-[`clean_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/clean_source.md)
+[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
 function never adds, drops, deduplicates, or combines source records.
 Aggregate expansion, record resolution, and release validation are
 separate stages.
@@ -273,11 +273,11 @@ instead need a script or correction.
 
 Extraction retains Excel serials as character values. `date_from_excel`
 and `time` use
-[`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/dicr-docs/reference/get_excel_epoch_origin.md)
+[`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/get_excel_epoch_origin.md)
 to read the original workbook’s 1900 or 1904 epoch. The workbook must
 still exist at the config-derived fetched path or be supplied as
 `source_file` to
-[`clean_source()`](https://uclalawbehindbars.github.io/dicr-docs/reference/clean_source.md).
+[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md).
 Its MD5 is checked against `source_md5`, including on cache hits. For a
 fractional serial, `date_from_excel` requires `date_only: true` to
 discard time explicitly; a separate `time` rule can preserve the
