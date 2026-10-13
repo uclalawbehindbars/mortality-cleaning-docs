@@ -9,20 +9,20 @@ source vintage followed by each source year.
 
 ``` r
 fetch_source_file(
-  source_config,
+  config_path,
   file_destination = "{project_root}/source_files/{state}/{vintage}_{years}"
 )
 ```
 
 ## Arguments
 
-- source_config:
+- config_path:
 
-  A list describing the source file. It must contain `filename`, `doi`,
-  `state`, `years`, `vintage`, `server`, and `source_md5` elements.
-  `source_md5` is used to validate the downloaded file. `doi` should
-  identify the Dataverse file by persistent identifier, and `server`
-  should be the base URL of the Dataverse server.
+  A path to a YAML source file. The source file must have `filename`,
+  `doi`, `state`, `years`, `vintage`, `server`, and `source_md5`
+  elements. `source_md5` is used to validate the downloaded file. `doi`
+  should identify the Dataverse file by persistent identifier, and
+  `server` should be the base URL of the Dataverse server.
 
 - file_destination:
 
