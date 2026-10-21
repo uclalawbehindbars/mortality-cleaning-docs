@@ -617,11 +617,12 @@ source config as inputs and outputs a dataframe.
 
 The extraction engine will check the output dataframe to ensure that it
 contains all columns specified in `source_config$extract$columns` (so
-you must still record the extracted columns in the extraction config)
-and that the number of rows matches
-`source_config$expected_record_count`. The extraction script is not
-responsible, however, for adding generic pipeline columns like `state`,
-`record_locator`, `source_doi`, or `source_agency`.
+you must still record the extracted columns in the extraction config),
+as well as a `record_locator` column indicating where each row appears
+in the source data (e.g., page number), and that the number of rows
+matches `source_config$expected_record_count`. The extraction script is
+not responsible, however, for adding generic pipeline columns like
+`state`, `source_doi`, or `source_agency`.
 
 In later updates, we may add the capability to define a `script_context`
 key in the source configs, which would allow for increased portability
