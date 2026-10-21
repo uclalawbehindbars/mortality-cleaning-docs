@@ -641,6 +641,32 @@ ragged PDF table rows, invalid/ambiguous HTML selectors or overlapping
 records, HTML parser/encoding failures, and expected record-count
 mismatches.</p>
 </div>
+<div class="section level2">
+<h2 id="script-based-extraction">Script-based extraction<a class="anchor" aria-label="anchor" href="#script-based-extraction"></a>
+</h2>
+<p>If the built-in extraction methods are insufficient for extracting
+data from a set of records (e.g., because the records are in a non-OCRed
+PDF or a complex web page), you can use script-based extraction to take
+a bespoke approach.</p>
+<p>The script-based extraction contract is intentionally bare-bones,
+since we make no presumptions about what columns are available in the
+underlying data. An extraction script must define a function
+<code>extract_records</code> that takes a path to the record source file
+and the source config as inputs and outputs a dataframe.</p>
+<p>The extraction engine will check the output dataframe to ensure that
+it contains all columns specified in
+<code>source_config$extract$columns</code> (so you must still record the
+extracted columns in the extraction config) and that the number of rows
+matches <code>source_config$expected_record_count</code>. The extraction
+script is not responsible, however, for adding generic pipeline columns
+like <code>state</code>, <code>record_locator</code>,
+<code>source_doi</code>, or <code>source_agency</code>.</p>
+<p>In later updates, we may add the capability to define a
+<code>script_context</code> key in the source configs, which would allow
+for increased portability of scripts for similar files, but for now, the
+only context available to the script are the existing source config
+attributes.</p>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>

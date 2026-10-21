@@ -44,13 +44,14 @@ A list describing the extracted artifacts.
 ## Details
 
 Version 1 extraction supports CSV, Excel, PDF table, and locally saved
-HTML source artifacts. CSV configs select columns by source header name
-or 1-based position; Excel configs use an explicit full A1 rectangle
-range and select columns by source header name or Excel column letter.
-Headered PDF table configs select columns by source header name or
-1-based position; headerless PDF configs select columns by 1-based
-position. HTML configs select record elements with
-`extract$record_selector` (CSS) and require
+HTML source artifacts.
+
+CSV configs select columns by source header name or 1-based position;
+Excel configs use an explicit full A1 rectangle range and select columns
+by source header name or Excel column letter. Headered PDF table configs
+select columns by source header name or 1-based position; headerless PDF
+configs select columns by 1-based position. HTML configs select record
+elements with `extract$record_selector` (CSS) and require
 `extract$expected_record_count` and a nonempty `extract$columns` list.
 Each HTML column has a `source` label, an optional scoped CSS `selector`
 (default: the record element), and an optional `attribute` (default: DOM

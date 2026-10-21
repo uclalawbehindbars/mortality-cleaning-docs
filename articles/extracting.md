@@ -601,3 +601,29 @@ positions or Excel columns, invalid positions, out-of-range
 headerless PDF name-based selection, PDF header mismatches, ragged PDF
 table rows, invalid/ambiguous HTML selectors or overlapping records,
 HTML parser/encoding failures, and expected record-count mismatches.
+
+## Script-based extraction
+
+If the built-in extraction methods are insufficient for extracting data
+from a set of records (e.g., because the records are in a non-OCRed PDF
+or a complex web page), you can use script-based extraction to take a
+bespoke approach.
+
+The script-based extraction contract is intentionally bare-bones, since
+we make no presumptions about what columns are available in the
+underlying data. An extraction script must define a function
+`extract_records` that takes a path to the record source file and the
+source config as inputs and outputs a dataframe.
+
+The extraction engine will check the output dataframe to ensure that it
+contains all columns specified in `source_config$extract$columns` (so
+you must still record the extracted columns in the extraction config)
+and that the number of rows matches
+`source_config$expected_record_count`. The extraction script is not
+responsible, however, for adding generic pipeline columns like `state`,
+`record_locator`, `source_doi`, or `source_agency`.
+
+In later updates, we may add the capability to define a `script_context`
+key in the source configs, which would allow for increased portability
+of scripts for similar files, but for now, the only context available to
+the script are the existing source config attributes.
