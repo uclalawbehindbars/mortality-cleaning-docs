@@ -65,6 +65,9 @@ setup, you should run `just setup-local` instead.
 - [`fetch_source_file()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/fetch_source_file.md)
   : Fetch a source file from a Dataverse server.
 
+- [`filter_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/filter_source.md)
+  : Filter a cleaned source.
+
 - [`get_excel_epoch_origin()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/get_excel_epoch_origin.md)
   : Determine an Excel file's epoch date origin.
 

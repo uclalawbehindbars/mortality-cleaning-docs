@@ -1,7 +1,6 @@
 # Extract a fetched source artifact.
 
-Reads a source configuration, verifies the fetched source artifact, and
-writes extracted RDS and YAML sidecar artifacts.
+Extract a fetched source artifact.
 
 ## Usage
 
@@ -42,6 +41,9 @@ extract_source(
 A list describing the extracted artifacts.
 
 ## Details
+
+Reads a source configuration, verifies the fetched source artifact, and
+writes extracted RDS and YAML sidecar artifacts.
 
 Version 1 extraction supports CSV, Excel, PDF table, and locally saved
 HTML source artifacts.
