@@ -21,6 +21,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/cleaning.html">cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/extracting.html">Extracting source tables</a></li>
     <li><a class="dropdown-item" href="../articles/fetch.html">fetch</a></li>
+    <li><a class="dropdown-item" href="../articles/filtering.html">filtering</a></li>
     <li><a class="dropdown-item" href="../articles/validating.html">validating</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -97,9 +98,11 @@ Defaults to the config-derived fetched source path.</p></dd>
 Raw <code>source</code>/<code>sources</code> inputs use source column names, cleaned the same way
 as extracted columns; <code>@field</code> refers to another rule, including one declared
 later. Dependencies are resolved before records are evaluated; each field
-runs once per record. Types include copy, regex, constant, default, map,
-concat, number, date, date_from_excel, time, date_year, date_month, age, and
-race. Date rules use a lubridate order such as <code>mdy</code> or <code>dmy_hms</code>. Excel
+runs once per record. Types include copy, clean_text, regex, constant,
+default, map, concat, number, date, date_from_excel, time, date_year,
+date_month, age, and race. <code>clean_text</code> trims whitespace, removes leading
+and trailing punctuation, converts to uppercase, and maps empty text to
+missing. Date rules use a lubridate order such as <code>mdy</code> or <code>dmy_hms</code>. Excel
 serial rules obtain their epoch from the source workbook, never from rule
 configuration. A <code>regex</code> rule extracts a capture (named group or 1-based
 group number) from a raw source or cleaned reference. <code>allow_empty: true</code>

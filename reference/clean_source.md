@@ -55,22 +55,23 @@ declaration. Raw `source`/`sources` inputs use source column names,
 cleaned the same way as extracted columns; `@field` refers to another
 rule, including one declared later. Dependencies are resolved before
 records are evaluated; each field runs once per record. Types include
-copy, regex, constant, default, map, concat, number, date,
-date_from_excel, time, date_year, date_month, age, and race. Date rules
-use a lubridate order such as `mdy` or `dmy_hms`. Excel serial rules
-obtain their epoch from the source workbook, never from rule
-configuration. A `regex` rule extracts a capture (named group or 1-based
-group number) from a raw source or cleaned reference.
-`allow_empty: true` permits an empty capture as `""`. Blank input yields
-missing; a nonmatch still fails. Rule failures are recorded by locator
-and field; corrections run after all rules and resolve only failures for
-that same locator and field. Dependent rules are not re-evaluated after
-corrections. Alternatively `clean$script` names a trusted
-repository-local R script defining `clean_records(records)`, where
-`records` is the extracted data frame. Scripts should not download data
-or modify other files; they are reviewable code, not sandboxed.
-`clean$corrections` contains record_locator, field, replacement, and
-reason mappings.
+copy, clean_text, regex, constant, default, map, concat, number, date,
+date_from_excel, time, date_year, date_month, age, and race.
+`clean_text` trims whitespace, removes leading and trailing punctuation,
+converts to uppercase, and maps empty text to missing. Date rules use a
+lubridate order such as `mdy` or `dmy_hms`. Excel serial rules obtain
+their epoch from the source workbook, never from rule configuration. A
+`regex` rule extracts a capture (named group or 1-based group number)
+from a raw source or cleaned reference. `allow_empty: true` permits an
+empty capture as `""`. Blank input yields missing; a nonmatch still
+fails. Rule failures are recorded by locator and field; corrections run
+after all rules and resolve only failures for that same locator and
+field. Dependent rules are not re-evaluated after corrections.
+Alternatively `clean$script` names a trusted repository-local R script
+defining `clean_records(records)`, where `records` is the extracted data
+frame. Scripts should not download data or modify other files; they are
+reviewable code, not sandboxed. `clean$corrections` contains
+record_locator, field, replacement, and reason mappings.
 
 `source_record` is a one-element list containing
 `<source_id>:<record_locator>`. Source IDs cannot contain colons, so the
