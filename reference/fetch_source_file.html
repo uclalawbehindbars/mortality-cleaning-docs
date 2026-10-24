@@ -68,10 +68,12 @@ source vintage followed by each source year.</p>
 
 <dl><dt id="arg-config-path">config_path<a class="anchor" aria-label="anchor" href="#arg-config-path"></a></dt>
 <dd><p>A path to a YAML source file. The source file must have
-<code>filename</code>, <code>doi</code>, <code>state</code>, <code>years</code>, <code>vintage</code>, <code>server</code>, and <code>source_md5</code>
-elements. <code>source_md5</code> is used to validate the downloaded file. <code>doi</code>
-should identify the Dataverse file by persistent identifier,
-and <code>server</code> should be the base URL of the Dataverse server.</p></dd>
+<code>filename</code>, <code>state</code>, <code>years</code>, <code>server</code>, and <code>source_md5</code>
+elements, a <code>dataset$vintage</code> (legacy top-level <code>vintage</code> also works),
+plus either a file <code>doi</code> or a numeric <code>database_id</code>.
+<code>source_md5</code> validates the downloaded file. If a file DOI is not yet
+available, <code>database_id</code> identifies the file instead. <code>dataset$doi</code>
+identifies the dataset and is not used to fetch a file.</p></dd>
 
 
 <dt id="arg-file-destination">file_destination<a class="anchor" aria-label="anchor" href="#arg-file-destination"></a></dt>

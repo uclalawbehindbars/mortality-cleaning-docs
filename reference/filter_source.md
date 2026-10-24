@@ -48,4 +48,6 @@ A list describing the filtered artifacts.
 Matching rows are removed, in rule order. A filter may instead use a
 repository-local script defining
 `filter_records(cleaned_records, source_config)`, returning data,
-filtered_records, and warnings.
+filtered_records, and warnings. When the source has no `filter`
+configuration, cleaned rows are passed through unchanged into a filtered
+artifact.

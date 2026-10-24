@@ -24,18 +24,23 @@ decisions belong to cleaning.
 ## Source config shape
 
 A v1 extraction config combines source identity, fetch metadata,
-checksum metadata, and extraction instructions:
+checksum metadata, and extraction instructions. Dataset-level metadata
+belongs under `dataset` (legacy top-level `agency` and `vintage` remain
+readable):
 
 ``` yaml
 source_id: ca_deaths_2024
 filename: deaths.csv
-doi: doi:10.70122/FK2/ABC123/FILEABC
+doi: 10.70122/FK2/ABC123/FILEABC
 state: ca
-agency: CDCR
 years:
   - 2019
   - 2020
-vintage: "2024-01-31"
+dataset:
+  title: California prison deaths
+  agency: CDCR
+  vintage: "2024-01-31"
+  doi: 10.70122/FK2/ABC123
 server: https://dataverse.example.org
 source_md5: 0123456789abcdef0123456789abcdef
 extract:

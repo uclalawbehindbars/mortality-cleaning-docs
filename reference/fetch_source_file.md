@@ -19,10 +19,12 @@ fetch_source_file(
 - config_path:
 
   A path to a YAML source file. The source file must have `filename`,
-  `doi`, `state`, `years`, `vintage`, `server`, and `source_md5`
-  elements. `source_md5` is used to validate the downloaded file. `doi`
-  should identify the Dataverse file by persistent identifier, and
-  `server` should be the base URL of the Dataverse server.
+  `state`, `years`, `server`, and `source_md5` elements, a
+  `dataset$vintage` (legacy top-level `vintage` also works), plus either
+  a file `doi` or a numeric `database_id`. `source_md5` validates the
+  downloaded file. If a file DOI is not yet available, `database_id`
+  identifies the file instead. `dataset$doi` identifies the dataset and
+  is not used to fetch a file.
 
 - file_destination:
 
