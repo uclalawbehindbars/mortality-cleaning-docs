@@ -3,7 +3,7 @@
 Downloads a named file from a Dataverse dataset and stores it in a local
 destination directory. By default, files are saved under
 `{project_root}/source_files/{state}/`, in a subdirectory named with the
-source vintage followed by each source year.
+dataset vintage followed by compressed contiguous runs of source years.
 
 ## Usage
 

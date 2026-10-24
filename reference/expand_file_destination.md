@@ -13,7 +13,9 @@ expand_file_destination(file_destination, source_config)
 - file_destination:
 
   A file destination template string, which can include tokens such as
-  `project_root`, `years`, `vintage`, or `state`.
+  `project_root`, `years`, `vintage`, or `state`. `{years}` abbreviates
+  contiguous years as `starttoend` and joins separate runs with
+  underscores (e.g., `2021_2023to2025`).
 
 - source_config:
 

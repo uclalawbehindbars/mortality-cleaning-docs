@@ -56,7 +56,9 @@
 
 <dl><dt id="arg-file-destination">file_destination<a class="anchor" aria-label="anchor" href="#arg-file-destination"></a></dt>
 <dd><p>A file destination template string, which can
-include tokens such as <code>project_root</code>, <code>years</code>, <code>vintage</code>, or <code>state</code>.</p></dd>
+include tokens such as <code>project_root</code>, <code>years</code>, <code>vintage</code>, or <code>state</code>.
+<code>{years}</code> abbreviates contiguous years as <code>starttoend</code> and joins
+separate runs with underscores (e.g., <code>2021_2023to2025</code>).</p></dd>
 
 
 <dt id="arg-source-config">source_config<a class="anchor" aria-label="anchor" href="#arg-source-config"></a></dt>
