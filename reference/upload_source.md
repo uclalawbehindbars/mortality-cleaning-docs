@@ -6,7 +6,8 @@ publish the dataset. An existing `dataset$doi` is reused; otherwise a
 dataset is created and its DOI saved before the file upload. On
 successful upload, the numeric file ID and local MD5 are saved as
 `database_id` and `source_md5`. A file's `doi` is left untouched until
-publication.
+publication. Refuses to upload when a top-level file `doi` or
+`database_id` is already set, to avoid uploading the same source twice.
 
 ## Usage
 

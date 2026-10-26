@@ -4,12 +4,16 @@ named by the YAML source config. This creates a draft; it does not publish
 the dataset. An existing dataset$doi is reused; otherwise a dataset is
 created and its DOI saved before the file upload. On successful upload,
 the numeric file ID and local MD5 are saved as database_id and
-source_md5. A file's doi is left untouched until publication."><meta property="og:description" content="Creates a CC0 dataset under parent, then uploads the local source file
+source_md5. A file's doi is left untouched until publication.
+Refuses to upload when a top-level file doi or database_id is already
+set, to avoid uploading the same source twice."><meta property="og:description" content="Creates a CC0 dataset under parent, then uploads the local source file
 named by the YAML source config. This creates a draft; it does not publish
 the dataset. An existing dataset$doi is reused; otherwise a dataset is
 created and its DOI saved before the file upload. On successful upload,
 the numeric file ID and local MD5 are saved as database_id and
-source_md5. A file's doi is left untouched until publication."></head><body>
+source_md5. A file's doi is left untouched until publication.
+Refuses to upload when a top-level file doi or database_id is already
+set, to avoid uploading the same source twice."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +21,7 @@ source_md5. A file's doi is left untouched until publication."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +61,9 @@ named by the YAML source config. This creates a draft; it does not publish
 the dataset. An existing <code>dataset$doi</code> is reused; otherwise a dataset is
 created and its DOI saved before the file upload. On successful upload,
 the numeric file ID and local MD5 are saved as <code>database_id</code> and
-<code>source_md5</code>. A file's <code>doi</code> is left untouched until publication.</p>
+<code>source_md5</code>. A file's <code>doi</code> is left untouched until publication.
+Refuses to upload when a top-level file <code>doi</code> or <code>database_id</code> is already
+set, to avoid uploading the same source twice.</p>
     </div>
 
     <div class="section level2">
