@@ -629,6 +629,30 @@ matches `source_config$expected_record_count`. The extraction script is
 not responsible, however, for adding generic pipeline columns like
 `state`, `source_doi`, or `source_agency`.
 
+In the YAML:
+
+``` yaml
+extract:
+  type: csv # replace with 'script' when available
+  script: "pipeline/<state>/scripts/<name_of_script>.R"
+  expected_record_count: X # number of records extracted 
+  columns:
+    - source: full_text # for example if pulling data from html or block of text 
+    - source: record_locator # **required** column 
+    # may have more columns if extracting from image of table 
+```
+
+In the extract script:
+
+``` r
+
+extract_records <- function(file, source_config) {
+  record_text <- # extract text from file 
+  position <- # some locator of where item was in file, such as page number 
+  data.frame(full_text = record_text, record_locator = position)
+}
+```
+
 In later updates, we may add the capability to define a `script_context`
 key in the source configs, which would allow for increased portability
 of scripts for similar files, but for now, the only context available to

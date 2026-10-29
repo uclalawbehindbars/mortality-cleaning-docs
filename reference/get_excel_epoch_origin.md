@@ -17,3 +17,7 @@ get_excel_epoch_origin(path)
 ## Value
 
 The Excel epoch date origin (either 1900-01-01 or 1904-01-01).
+
+## Details
+
+Reading XLS files requires Python's `xlrd` module via reticulate.

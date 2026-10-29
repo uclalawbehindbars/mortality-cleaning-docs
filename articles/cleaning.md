@@ -1,4 +1,4 @@
-# cleaning
+# Cleaning
 
 ``` r
 
@@ -194,6 +194,29 @@ package to allow for doing so. To prepare for that change, you can
 define `clean_records` with the signature
 `clean_records(records, config = NULL)`.
 
+In the YAML:
+
+``` yaml
+clean:
+  script: "pipeline/<state>/scripts/<name_of_script>.R"
+```
+
+In the extract script:
+
+``` r
+# can write smaller functions to use in cleaning
+fnc_to_pull_last_name <- function(name_col){}
+
+clean_records <- function(records, source_config){
+  # records = output from extraction
+  records |>
+    dplyr::mutate(
+      last_name = fnc_to_pull_last_name(name_col)
+    )
+)
+}
+```
+
 ## Running cleaning and inspecting artifacts
 
 Add `clean:` to the same source YAML used for extraction. Raw `source`
@@ -257,7 +280,7 @@ source value, including identity mappings. Common types are:
 | `date_from_excel` | `source`, optional `date_only`: parse an Excel serial using the workbook epoch. |
 | `time` | `source`: extract an Excel serial’s fractional time as `HH:MM:SS`, truncating seconds. |
 | `date_year`, `date_month` | `source: '@death_date'`: derive year or English month from a parsed date. |
-| `age` | `sources: ['@birth_date', '@death_date']`: completed years at death; birth after death fails. |
+| `age` | `sources: ['@birth_date', '@death_date']`, `[birth_year, death_year]`, `[birth_year, '@death_date']`, or `[birth_year, birth_month, '@death_date']`: completed years at death; birth after death fails. Missing month/day in year-only values are interpolated as July 1; missing birth day with a known month is interpolated as the 15th. Year and month sources may be raw columns or `@` cleaned-field references. |
 | `regex` | `source`, `pattern`, `capture`, optional `allow_empty: true`: extract one named or 1-based numbered group; allow an empty capture as `""`. |
 | `race` | `source`, literal `separator`, named `map`: split, trim, map, deduplicate, and order schema race categories. |
 

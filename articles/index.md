@@ -2,7 +2,9 @@
 
 ### All vignettes
 
-- [cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.md):
+- [Cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.md):
+- [Building and using the
+  container](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/container.md):
 - [Extracting source
   tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md):
 - [fetch](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/fetch.md):
