@@ -9,7 +9,8 @@ extract_source(
   config_path,
   source_file = NULL,
   extracted_destination = "{project_root}/extracted/{state}/{vintage}_{years}",
-  force = FALSE
+  force = FALSE,
+  source_table_id = NULL
 )
 ```
 
@@ -36,9 +37,17 @@ extract_source(
   When `TRUE`, rewrite extracted artifacts even when the existing
   artifact pair has current cache identity.
 
+- source_table_id:
+
+  Optional effective source table ID. The complete source config is
+  validated before selecting the table. By default all tables run;
+  failures report table IDs and retain successful keyed results in the
+  error's `results` field.
+
 ## Value
 
-A list describing the extracted artifacts.
+A list keyed by source ID, with each entry describing the extracted
+artifacts, status, record count, and warnings.
 
 ## Details
 

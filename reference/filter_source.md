@@ -10,7 +10,8 @@ filter_source(
   cleaned_file = NULL,
   filtered_destination = "{project_root}/filtered/{state}/{vintage}_{years}",
   schema_path = file.path(project_root(), "datapackage.json"),
-  force = FALSE
+  force = FALSE,
+  source_table_id = NULL
 )
 ```
 
@@ -22,8 +23,9 @@ filter_source(
 
 - cleaned_file:
 
-  Optional path to the cleaned source artifact. When `NULL`, the path is
-  derived from the source configuration.
+  Optional path to the cleaned source artifact for legacy configs. For
+  inline source tables, an explicit path is a directory of table-ID RDS
+  files. When `NULL`, paths are derived from the config.
 
 - filtered_destination:
 
@@ -33,15 +35,23 @@ filter_source(
 - schema_path:
 
   Path to the release Data Package schema. Defaults to
+  `datapackage.json` in the project root.
 
 - force:
 
   When `TRUE`, rewrite filtered artifacts even when the existing
   artifact pair has current cache identity.
 
+- source_table_id:
+
+  Optional effective source table ID. All sibling configs are validated
+  before selection; by default all tables run. A runtime error retains
+  successful keyed results in its `results` field.
+
 ## Value
 
-A list describing the filtered artifacts.
+A list keyed by source ID, with each entry describing the filtered
+artifacts, status, and record count.
 
 ## Details
 

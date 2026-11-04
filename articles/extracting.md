@@ -5,8 +5,9 @@
 library(dicr)
 ```
 
-Extraction converts one fetched source artifact and one YAML source
-config into a source-shaped artifact pair:
+Extraction reads one fetched source file and one YAML source-file
+config. A legacy config produces one artifact pair; a config with
+`source_tables` produces an independent pair for each table:
 
 - `{source_id}.rds`: a tibble of selected source columns plus row-level
   provenance.
@@ -23,10 +24,10 @@ decisions belong to cleaning.
 
 ## Source config shape
 
-A v1 extraction config combines source identity, fetch metadata,
-checksum metadata, and extraction instructions. Dataset-level metadata
-belongs under `dataset` (legacy top-level `agency` and `vintage` remain
-readable):
+A legacy, single-output extraction config combines source identity,
+fetch metadata, checksum metadata, and extraction instructions.
+Dataset-level metadata belongs under `dataset` (legacy top-level
+`agency` and `vintage` remain readable):
 
 ``` yaml
 source_id: ca_deaths_2024
@@ -51,6 +52,13 @@ extract:
     - source: Death Year
     - position: 3
 ```
+
+For this legacy shape, `source_id` names the only output. For a
+multi-table config, the top-level fields describe the physical file;
+each `source_table_id` names an independent artifact chain (if omitted,
+the effective ID falls back to top-level `source_id`, so sibling
+effective IDs still must be distinct). Fetching and uploading use
+top-level file identifiers once, not once per table.
 
 Required extraction fields are:
 
@@ -131,15 +139,17 @@ source path:
 ``` r
 
 result <- extract_source("path/to/source.yaml")
-result$rds
-result$yaml
+result[["ca_deaths_2024"]]$rds
+result[["ca_deaths_2024"]]$yaml
 ```
 
+Stage results are keyed by effective source ID, including legacy
+one-output configs; use the ID in your configuration (not `result$rds`).
 The RDS contains selected columns followed by provenance columns. All
 columns are character:
 
 ``` r
-name      death_year source_state source_agency source_doi                         record_locator
+name      death_year source_state agency source_doi                         record_locator
 Jane Doe  2019       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    line 2
 John Roe  2020       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    line 3
 ```
@@ -162,6 +172,158 @@ warnings: []
 Blank rows are filtered after selected-column normalization. The
 `record_locator` keeps the physical CSV line number, so locators may
 have gaps when blank rows are skipped.
+
+## Multiple source tables and a reusable format
+
+Keep file identity (`filename`, file `doi` or `database_id`,
+`source_md5`, `state`, `years`, `server`, and dataset metadata) at the
+top level. Put independently processed sheets under `source_tables`; do
+**not** put file-wide `extract`, `clean`, or `filter` alongside
+`source_tables`. A file can select a default `format`, which tables can
+share even across other source files or datasets. For example, save this
+as `pipeline/ca/deaths-2020.yaml` (replace the illustrative file
+identifiers and checksum with real values):
+
+``` yaml
+source_id: ca_deaths_2020_file
+filename: deaths.xlsx
+doi: doi:10.70122/FK2/ABC123/FILEABC
+source_md5: <md5 of deaths.xlsx>
+server: https://dataverse.example.org
+state: ca
+years: [2020]
+dataset:
+  title: California prison deaths
+  agency: CDCR
+  vintage: "2024-01-31"
+  doi: 10.70122/FK2/ABC123
+format: pipeline/formats/quarter.yaml
+source_tables:
+  - source_table_id: ca_deaths_2020_q1
+    extract:
+      sheet: First
+      range: A1:B2
+      expected_record_count: 1
+    filter:
+      filtered_row_count: 0
+  - source_table_id: ca_deaths_2020_q2
+    extract:
+      sheet: Second
+      range: A1:B3
+      expected_record_count: 2
+    filter:
+      filtered_row_count: 2
+```
+
+The selected format is a separate YAML file at
+`pipeline/formats/quarter.yaml`, **relative to the project root**, not
+to the source config. Its path must resolve to a file inside the project
+root (including after following symlinks):
+
+``` yaml
+extract:
+  type: excel
+  columns:
+    - source: Name
+    - source: Death Year
+clean:
+  rules:
+    full_name:
+      type: copy
+      source: name
+    death_year:
+      type: number
+      source: death_year
+filter:
+  filters:
+    - column: full_name
+      predicate: eq
+      value: Jane Doe
+```
+
+This example assumes `First` has one data row for Jane Doe and `Second`
+has two other rows; matching filter rules **remove** rows. Each table
+supplies its own `sheet`, `range`, and `expected_record_count`; the
+format holds shared `type`, `columns`, cleaning rules, and optional
+filtering behavior. Formats require `extract` and `clean`, and cannot
+hold file/dataset identity, table locators or expected counts,
+`clean.corrections`, or `filter.filtered_row_count`. A different layout
+can select another format with a table-level
+`format: pipeline/formats/other.yaml`. To opt out of a file default, use
+`format: null` and supply complete inline `extract` and `clean` stages
+for that table. Without a format, each inline table needs complete
+stages; legacy single-output configs continue to use top-level stages.
+Do not confuse `source_tables` (independent outputs) with PDF
+`extract.tables` (several detected input regions combined into *one*
+table’s output).
+
+While using a format, table `extract` supports the table locator(s) and
+count plus only these extractor-specific options: CSV `delimiter`,
+`skip`, `header`, `encoding`; Excel `header`; PDF `password`,
+`table_settings`. HTML and script extraction have no additional
+non-locator option overrides. Columns may be varied explicitly by exact
+configured `source` name, not by cleaned output name:
+
+``` yaml
+# Within one formatted table entry, if the format declares Name and Death Year:
+extract:
+  sheet: Second
+  range: A1:C3
+  expected_record_count: 2
+  columns_replace:
+    - source: Name
+      with:
+        source: Full Name
+  columns_exclude: [Death Year]
+  columns_append:
+    - source: Notes
+```
+
+These operations require unambiguous existing targets and full valid
+column mappings; the illustrated variation would also require cleaning
+rules that reference the resulting extracted columns (or corresponding
+table rule overrides). `type`, a whole `columns` list, and whole-stage
+extract/clean replacement are not overrides on a formatted table. Select
+another format or use `format: null` for different core stages. Cleaning
+and filtering variations are described in
+[Cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.md).
+
+After fetching the physical file once, process all tables or select a
+single ID:
+
+``` r
+
+fetch_source_file("pipeline/ca/deaths-2020.yaml") # one download, not one per sheet
+all <- extract_source("pipeline/ca/deaths-2020.yaml")
+all[["ca_deaths_2020_q1"]]$rds
+one <- extract_source("pipeline/ca/deaths-2020.yaml", source_table_id = "ca_deaths_2020_q2")
+one[["ca_deaths_2020_q2"]]$yaml
+```
+
+`upload_source("pipeline/ca/deaths-2020.yaml")` likewise uploads the
+physical file once, using top-level metadata; it is for a new upload and
+refuses an existing top-level file DOI or `database_id`. Stage results
+are lists keyed by effective table ID even for legacy configs. Each
+entry retains its stage-specific fields (such as `rds`, `yaml`,
+`status`, and `record_count`). The effective ID names
+`{source_table_id}.rds` and `{source_table_id}.yaml` in each stage
+destination and becomes the prefix of cleaned `source_record` lineage. A
+selected table still triggers validation of **all** siblings’ effective
+configurations before any artifact is processed. Invalid or escaping
+format paths, forbidden fields, duplicate effective IDs within the
+source-file config, missing or ambiguous column/rule targets, and
+invalid per-table counts stop processing before writing any table.
+Runtime failures are different: other tables are attempted; the
+aggregate `source_table_stage_error` names failed IDs and retains
+successful keyed entries in its `results` field (and failures in
+`failures`). No uniqueness guarantee applies across *separate*
+source-file configs.
+
+Sidecars include the source config MD5 (`config_md5`) and, for a
+formatted table, the selected project-root-relative `format_path` and
+whole-file `format_md5`; those checksums also contribute to cache
+identity. An edit anywhere in the source-file config or selected format
+may recompute a table, even when its own effective rules are unchanged.
 
 ## Excel example
 
@@ -575,7 +737,8 @@ Extraction skips rewriting an existing artifact pair when the sidecar
 cache identity is current:
 
 - `source_md5`
-- `config_md5`
+- `config_md5` (the whole source-file config, including sibling tables)
+- the selected format’s whole-file MD5, when using a format
 - package version
 
 Use `force = TRUE` to rewrite current artifacts. Force rewrites still
@@ -627,7 +790,7 @@ as well as a `record_locator` column indicating where each row appears
 in the source data (e.g., page number), and that the number of rows
 matches `source_config$expected_record_count`. The extraction script is
 not responsible, however, for adding generic pipeline columns like
-`state`, `source_doi`, or `source_agency`.
+`state`, `source_doi`, or `agency`.
 
 In the YAML:
 

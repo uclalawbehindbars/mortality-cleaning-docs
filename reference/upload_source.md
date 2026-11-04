@@ -8,6 +8,8 @@ successful upload, the numeric file ID and local MD5 are saved as
 `database_id` and `source_md5`. A file's `doi` is left untouched until
 publication. Refuses to upload when a top-level file `doi` or
 `database_id` is already set, to avoid uploading the same source twice.
+For a config with `source_tables`, the file is uploaded once; file
+identifiers and checksum are written at the top level, not per table.
 
 ## Usage
 

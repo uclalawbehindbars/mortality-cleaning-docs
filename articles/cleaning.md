@@ -89,6 +89,76 @@ capture groups can help improve readability if you have a particularly
 complicated regex, but numeric capture groups work just fine if you have
 a simple regex and want to save some extra typing.
 
+## Cleaning a table that uses a format
+
+A format defines shared `clean.rules`. A formatted table can replace an
+existing rule by its exact cleaned-field name under `clean.override`, or
+omit an existing rule under `clean.exclude`. An override supplies the
+**complete** replacement rule; neither operation adds a new field.
+Corrections belong to the table, not the format. For example, if the
+format defines `full_name` and `death_year` as in [Extracting source
+tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md),
+one table entry may vary its cleaning:
+
+``` yaml
+- source_table_id: ca_deaths_2020_q2
+  extract:
+    sheet: Second
+    range: A1:B3
+    expected_record_count: 2
+  clean:
+    override:
+      full_name:
+        type: default
+        source: name
+        default_value: Unknown
+    exclude: [death_year]
+    corrections:
+      - record_locator: "'Second'!A3:B3"
+        field: full_name
+        replacement: Verified Name
+        reason: Checked against source
+  filter:
+    filtered_row_count: 2
+```
+
+Use this as a *variation* on that table, not as an extra duplicate
+entry. Excluding a rule that another rule references with `@` is
+invalid. Scripted format cleaning cannot use rule operations; table
+corrections are still supported. Other tables using the same format
+retain the format’s rules and do not inherit these corrections. For a
+different core cleaning stage, choose a different format or opt out with
+`format: null` and supply complete inline `extract` and `clean` stages
+instead of replacing a whole stage.
+
+## Per-table filtering
+
+A format may define `filter.filters` (rules) or `filter.script` without
+a count. For every table with an active inherited filter, set its own
+`filter.filtered_row_count` to the **remaining** row count, as in the
+preceding example; the inherited rules are applied without repeating
+them. A table can instead replace all inherited rules or the script (not
+merge individual rules) while supplying its count:
+
+``` yaml
+filter:
+  filters:
+    - column: full_name
+      predicate: eq
+      value: John Roe
+  filtered_row_count: 1
+```
+
+This replacement illustrates a `Second` sheet with two records including
+John Roe: matching records are removed. To disable an inherited filter,
+write `filter: null` on that table (not an omitted `filter`, which is
+invalid when the format has a filter). With no filter, the filtering
+stage passes cleaned records through unchanged. Inline tables can
+declare their own filter rules or script and count. Rule columns refer
+to cleaned schema fields; a filtering script defines
+`filter_records(cleaned_records, source_config)`, returning `data`,
+`filtered_records`, and `warnings`.
+
 ## Aggregate data
 
 Some states hate transparency, so they only provided us with aggregate
@@ -188,11 +258,10 @@ otherwise appear in a rules-based config. In other words, if there’s no
 `clean_records` function that produces an empty `first_name` column; the
 cleaning engine will do that for you.
 
-**NOTE**: I realized belatedly that it would make sense to pass the
-source config object to cleaning scripts, so I am planning to update the
-package to allow for doing so. To prepare for that change, you can
-define `clean_records` with the signature
-`clean_records(records, config = NULL)`.
+Cleaning scripts may also accept `source_config` as a second argument.
+This is an effective table config: its `source_id` is the table’s ID and
+file metadata remains available. Existing one-argument scripts keep
+working.
 
 In the YAML:
 
@@ -201,7 +270,7 @@ clean:
   script: "pipeline/<state>/scripts/<name_of_script>.R"
 ```
 
-In the extract script:
+In the clean script:
 
 ``` r
 # can write smaller functions to use in cleaning
@@ -228,14 +297,41 @@ sidecar:
 ``` r
 
 result <- clean_source("path/to/source.yaml", schema_path = "path/to/datapackage.json")
-result$status       # "written" or "skipped"
-rows <- readRDS(result$rds)
-sidecar <- yaml::read_yaml(result$yaml)
+result[["example_source_id"]]$status       # "written" or "skipped"
+rows <- readRDS(result[["example_source_id"]]$rds)
+sidecar <- yaml::read_yaml(result[["example_source_id"]]$yaml)
 ```
 
-The default extracted and cleaned locations are respectively
-`extracted/{state}/{vintage}_{years}/{source_id}.rds` and
-`cleaned/{state}/{vintage}_{years}/{source_id}.rds`, each with an
+Stage results are keyed by effective table ID even for legacy one-output
+configs; replace `example_source_id` with the ID in your configuration.
+With `source_tables`,
+[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
+and
+[`filter_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/filter_source.md)
+process all tables by default, or accept `source_table_id` to process
+only that table. Run extraction, then cleaning, then filtering for each
+desired table:
+
+``` r
+
+config <- "pipeline/ca/deaths-2020.yaml"
+extract_source(config, source_table_id = "ca_deaths_2020_q2")
+cleaned <- clean_source(config, source_table_id = "ca_deaths_2020_q2")
+filtered <- filter_source(config, source_table_id = "ca_deaths_2020_q2")
+filtered[["ca_deaths_2020_q2"]]$status
+```
+
+For a whole-file run, omit `source_table_id` in each call. All sibling
+configs are validated before selection or processing; a runtime failure
+in one table still attempts the others, and the aggregate
+`source_table_stage_error` exposes successful keyed entries in `results`
+and failed entries in `failures`. The selected format path and MD5 are
+recorded in each output sidecar alongside the source-file config MD5.
+Changing either whole YAML file invalidates affected cache identities.
+Stage results do not support legacy direct `result$rds` access; index
+with the effective table ID. The default extracted and cleaned locations
+are respectively `extracted/{state}/{vintage}_{years}/{source_id}.rds`
+and `cleaned/{state}/{vintage}_{years}/{source_id}.rds`, each with an
 adjacent `.yaml` sidecar. Pass `extracted_file` and
 `cleaned_destination` for custom locations; the latter is a directory,
 not an output filename. Pass the release Data Package as `schema_path`;

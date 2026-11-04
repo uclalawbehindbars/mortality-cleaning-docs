@@ -147,6 +147,76 @@ numeric capture groups work just fine if you have a simple regex and
 want to save some extra typing.</p>
 </div>
 <div class="section level2">
+<h2 id="cleaning-a-table-that-uses-a-format">Cleaning a table that uses a format<a class="anchor" aria-label="anchor" href="#cleaning-a-table-that-uses-a-format"></a>
+</h2>
+<p>A format defines shared <code>clean.rules</code>. A formatted table
+can replace an existing rule by its exact cleaned-field name under
+<code>clean.override</code>, or omit an existing rule under
+<code>clean.exclude</code>. An override supplies the
+<strong>complete</strong> replacement rule; neither operation adds a new
+field. Corrections belong to the table, not the format. For example, if
+the format defines <code>full_name</code> and <code>death_year</code> as
+in <a href="extracting.html">Extracting source tables</a>, one table
+entry may vary its cleaning:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source_table_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_q2</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Second</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:B3</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">    </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">  </span><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="at">    </span><span class="fu">override</span><span class="kw">:</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="at">      </span><span class="fu">full_name</span><span class="kw">:</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">        </span><span class="fu">type</span><span class="kw">:</span><span class="at"> default</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">        </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="at">        </span><span class="fu">default_value</span><span class="kw">:</span><span class="at"> Unknown</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="at">    </span><span class="fu">exclude</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">death_year</span><span class="kw">]</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="at">    </span><span class="fu">corrections</span><span class="kw">:</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> </span><span class="st">"'Second'!A3:B3"</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="at">        </span><span class="fu">field</span><span class="kw">:</span><span class="at"> full_name</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="at">        </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> Verified Name</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="at">        </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> Checked against source</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="at">  </span><span class="fu">filter</span><span class="kw">:</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="at">    </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span></code></pre></div>
+<p>Use this as a <em>variation</em> on that table, not as an extra
+duplicate entry. Excluding a rule that another rule references with
+<code>@</code> is invalid. Scripted format cleaning cannot use rule
+operations; table corrections are still supported. Other tables using
+the same format retain the format’s rules and do not inherit these
+corrections. For a different core cleaning stage, choose a different
+format or opt out with <code>format: null</code> and supply complete
+inline <code>extract</code> and <code>clean</code> stages instead of
+replacing a whole stage.</p>
+</div>
+<div class="section level2">
+<h2 id="per-table-filtering">Per-table filtering<a class="anchor" aria-label="anchor" href="#per-table-filtering"></a>
+</h2>
+<p>A format may define <code>filter.filters</code> (rules) or
+<code>filter.script</code> without a count. For every table with an
+active inherited filter, set its own
+<code>filter.filtered_row_count</code> to the <strong>remaining</strong>
+row count, as in the preceding example; the inherited rules are applied
+without repeating them. A table can instead replace all inherited rules
+or the script (not merge individual rules) while supplying its
+count:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">filter</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">filters</span><span class="kw">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">column</span><span class="kw">:</span><span class="at"> full_name</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">      </span><span class="fu">predicate</span><span class="kw">:</span><span class="at"> eq</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">      </span><span class="fu">value</span><span class="kw">:</span><span class="at"> John Roe</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">  </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
+<p>This replacement illustrates a <code>Second</code> sheet with two
+records including John Roe: matching records are removed. To disable an
+inherited filter, write <code>filter: null</code> on that table (not an
+omitted <code>filter</code>, which is invalid when the format has a
+filter). With no filter, the filtering stage passes cleaned records
+through unchanged. Inline tables can declare their own filter rules or
+script and count. Rule columns refer to cleaned schema fields; a
+filtering script defines
+<code>filter_records(cleaned_records, source_config)</code>, returning
+<code>data</code>, <code>filtered_records</code>, and
+<code>warnings</code>.</p>
+</div>
+<div class="section level2">
 <h2 id="aggregate-data">Aggregate data<a class="anchor" aria-label="anchor" href="#aggregate-data"></a>
 </h2>
 <p>Some states hate transparency, so they only provided us with
@@ -189,17 +259,17 @@ approach is to add a <code>corrections</code> section to your cleaning
 config. The corrections section identifies individual cells that require
 manual fixes and documents their replacements values,along with the
 reason for replacing them. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span><span class="at"> ...</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">corrections</span><span class="kw">:</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A5:H5</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> death_date</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> 2025-05-05</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used a nonstandard format.</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A26:H26</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> last_name</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> Smith</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used unusual formatting for the generational suffix (SMITHIII).</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span><span class="at"> ...</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">  </span><span class="fu">corrections</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A5:H5</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> death_date</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> 2025-05-05</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used a nonstandard format.</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">record_locator</span><span class="kw">:</span><span class="at"> Sheet 1!A26:H26</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="fu">field</span><span class="kw">:</span><span class="at"> last_name</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">      </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> Smith</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">      </span><span class="fu">reason</span><span class="kw">:</span><span class="at"> The DOC used unusual formatting for the generational suffix (SMITHIII).</span></span></code></pre></div>
 <p>As illustrated above, each correction should specify the
 <code>record_locator</code> for the row needing correction, the
 <code>field</code> that needs correcting, the <code>replacement</code>
@@ -243,26 +313,25 @@ otherwise appear in a rules-based config. In other words, if there’s no
 write a <code>clean_records</code> function that produces an empty
 <code>first_name</code> column; the cleaning engine will do that for
 you.</p>
-<p><strong>NOTE</strong>: I realized belatedly that it would make sense
-to pass the source config object to cleaning scripts, so I am planning
-to update the package to allow for doing so. To prepare for that change,
-you can define <code>clean_records</code> with the signature
-<code>clean_records(records, config = NULL)</code>.</p>
+<p>Cleaning scripts may also accept <code>source_config</code> as a
+second argument. This is an effective table config: its
+<code>source_id</code> is the table’s ID and file metadata remains
+available. Existing one-argument scripts keep working.</p>
 <p>In the YAML:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="st">"pipeline/&lt;state&gt;/scripts/&lt;name_of_script&gt;.R"</span></span></code></pre></div>
-<p>In the extract script:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># can write smaller functions to use in cleaning</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fnc_to_pull_last_name <span class="ot">&lt;-</span> <span class="cf">function</span>(name_col){}</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>clean_records <span class="ot">&lt;-</span> <span class="cf">function</span>(records, source_config){</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="co"># records = output from extraction</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  records <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      <span class="at">last_name =</span> <span class="fu">fnc_to_pull_last_name</span>(name_col)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>    )</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="er">)</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="st">"pipeline/&lt;state&gt;/scripts/&lt;name_of_script&gt;.R"</span></span></code></pre></div>
+<p>In the clean script:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># can write smaller functions to use in cleaning</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fnc_to_pull_last_name <span class="ot">&lt;-</span> <span class="cf">function</span>(name_col){}</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>clean_records <span class="ot">&lt;-</span> <span class="cf">function</span>(records, source_config){</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="co"># records = output from extraction</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  records <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>      <span class="at">last_name =</span> <span class="fu">fnc_to_pull_last_name</span>(name_col)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    )</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="er">)</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="running-cleaning-and-inspecting-artifacts">Running cleaning and inspecting artifacts<a class="anchor" aria-label="anchor" href="#running-cleaning-and-inspecting-artifacts"></a>
@@ -272,12 +341,35 @@ Raw <code>source</code> and <code>sources</code> accept either original
 column names or cleaned extracted names. The <code>years</code> in
 source configuration describe the source, not each row’s death year.
 Once extraction has produced the default RDS and sidecar:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_source.html">clean_source</a></span><span class="op">(</span><span class="st">"path/to/source.yaml"</span>, schema_path <span class="op">=</span> <span class="st">"path/to/datapackage.json"</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">status</span>       <span class="co"># "written" or "skipped"</span></span>
-<span><span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">rds</span><span class="op">)</span></span>
-<span><span class="va">sidecar</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/read_yaml.html" class="external-link">read_yaml</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">yaml</span><span class="op">)</span></span></code></pre></div>
-<p>The default extracted and cleaned locations are respectively
+<span><span class="va">result</span><span class="op">[[</span><span class="st">"example_source_id"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">status</span>       <span class="co"># "written" or "skipped"</span></span>
+<span><span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">result</span><span class="op">[[</span><span class="st">"example_source_id"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rds</span><span class="op">)</span></span>
+<span><span class="va">sidecar</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/read_yaml.html" class="external-link">read_yaml</a></span><span class="op">(</span><span class="va">result</span><span class="op">[[</span><span class="st">"example_source_id"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">yaml</span><span class="op">)</span></span></code></pre></div>
+<p>Stage results are keyed by effective table ID even for legacy
+one-output configs; replace <code>example_source_id</code> with the ID
+in your configuration. With <code>source_tables</code>,
+<code><a href="../reference/clean_source.html">clean_source()</a></code> and <code><a href="../reference/filter_source.html">filter_source()</a></code> process all
+tables by default, or accept <code>source_table_id</code> to process
+only that table. Run extraction, then cleaning, then filtering for each
+desired table:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="st">"pipeline/ca/deaths-2020.yaml"</span></span>
+<span><span class="fu"><a href="../reference/extract_source.html">extract_source</a></span><span class="op">(</span><span class="va">config</span>, source_table_id <span class="op">=</span> <span class="st">"ca_deaths_2020_q2"</span><span class="op">)</span></span>
+<span><span class="va">cleaned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_source.html">clean_source</a></span><span class="op">(</span><span class="va">config</span>, source_table_id <span class="op">=</span> <span class="st">"ca_deaths_2020_q2"</span><span class="op">)</span></span>
+<span><span class="va">filtered</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_source.html">filter_source</a></span><span class="op">(</span><span class="va">config</span>, source_table_id <span class="op">=</span> <span class="st">"ca_deaths_2020_q2"</span><span class="op">)</span></span>
+<span><span class="va">filtered</span><span class="op">[[</span><span class="st">"ca_deaths_2020_q2"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">status</span></span></code></pre></div>
+<p>For a whole-file run, omit <code>source_table_id</code> in each call.
+All sibling configs are validated before selection or processing; a
+runtime failure in one table still attempts the others, and the
+aggregate <code>source_table_stage_error</code> exposes successful keyed
+entries in <code>results</code> and failed entries in
+<code>failures</code>. The selected format path and MD5 are recorded in
+each output sidecar alongside the source-file config MD5. Changing
+either whole YAML file invalidates affected cache identities. Stage
+results do not support legacy direct <code>result$rds</code> access;
+index with the effective table ID. The default extracted and cleaned
+locations are respectively
 <code>extracted/{state}/{vintage}_{years}/{source_id}.rds</code> and
 <code>cleaned/{state}/{vintage}_{years}/{source_id}.rds</code>, each
 with an adjacent <code>.yaml</code> sidecar. Pass
@@ -442,18 +534,18 @@ fetched path or be supplied as <code>source_file</code> to
 serial, <code>date_from_excel</code> requires
 <code>date_only: true</code> to discard time explicitly; a separate
 <code>time</code> rule can preserve the fraction:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_year</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">'@death_date'</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">    </span><span class="fu">death_date</span><span class="kw">:</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_from_excel</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">      </span><span class="fu">date_only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="at">    </span><span class="fu">death_time</span><span class="kw">:</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> time</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_year</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">'@death_date'</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">    </span><span class="fu">death_date</span><span class="kw">:</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> date_from_excel</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="at">      </span><span class="fu">date_only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">    </span><span class="fu">death_time</span><span class="kw">:</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> time</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> serial</span></span></code></pre></div>
 <p>Use <code>date</code> with a declared <code>format</code> for text;
 no date-format or workbook-epoch guessing is performed. Unsupported
 workbook types such as <code>.xls</code> cannot supply an epoch through

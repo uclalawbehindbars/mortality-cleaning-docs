@@ -10,8 +10,8 @@ clean_source(
   extracted_file = NULL,
   cleaned_destination = "{project_root}/cleaned/{state}/{vintage}_{years}",
   force = FALSE,
-  source_file = NULL,
-  schema_path = file.path(project_root(), "datapackage.json")
+  schema_path = file.path(project_root(), "datapackage.json"),
+  source_table_id = NULL
 )
 ```
 
@@ -23,7 +23,8 @@ clean_source(
 
 - extracted_file:
 
-  Optional extracted RDS path.
+  Optional extracted RDS path for legacy configs. For inline source
+  tables, an explicit path is a directory of table-ID RDS files.
 
 - cleaned_destination:
 
@@ -33,19 +34,21 @@ clean_source(
 
   Bypass a valid cache entry, but not safety checks.
 
-- source_file:
-
-  Optional original Excel workbook path for serial rules. Defaults to
-  the config-derived fetched source path.
-
 - schema_path:
 
   Path to the release Data Package schema. Defaults to
   `datapackage.json` in project root.
 
+- source_table_id:
+
+  Optional effective source table ID. All sibling configs are validated
+  before selection; by default all tables run. A runtime error retains
+  successful keyed results in its `results` field.
+
 ## Value
 
-Artifact paths, status, and record count.
+A list keyed by source ID, with each entry containing artifact paths,
+status, and record count.
 
 ## Details
 
@@ -69,9 +72,11 @@ after all rules and resolve only failures for that same locator and
 field. Dependent rules are not re-evaluated after corrections.
 Alternatively `clean$script` names a trusted repository-local R script
 defining `clean_records(records)`, where `records` is the extracted data
-frame. Scripts should not download data or modify other files; they are
-reviewable code, not sandboxed. `clean$corrections` contains
-record_locator, field, replacement, and reason mappings.
+frame. Scripts may accept a second `source_config` argument to receive
+the effective table config with file metadata. One-argument scripts
+continue to work. Scripts should not download data or modify other
+files; they are reviewable code, not sandboxed. `clean$corrections`
+contains record_locator, field, replacement, and reason mappings.
 
 `source_record` is a one-element list containing
 `<source_id>:<record_locator>`. Source IDs cannot contain colons, so the

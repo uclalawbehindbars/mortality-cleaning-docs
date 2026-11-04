@@ -1,7 +1,9 @@
 # Fetch a source file from a Dataverse server.
 
 Downloads a named file from a Dataverse dataset and stores it in a local
-destination directory. By default, files are saved under
+destination directory. A config with `source_tables` downloads and
+verifies the physical file once, using its top-level file identifiers
+and checksum. By default, files are saved under
 `{project_root}/source_files/{state}/`, in a subdirectory named with the
 dataset vintage followed by compressed contiguous runs of source years.
 
