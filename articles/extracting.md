@@ -62,10 +62,36 @@ top-level file identifiers once, not once per table.
 
 Required extraction fields are:
 
-- `extract$type`: `csv`, `excel`, `pdf_table`, or `html`.
+- `extract$type`: `csv`, `excel`, `pdf_table`, `html`, or `none`.
 - `extract$expected_record_count`: the number of nonblank extracted rows
   expected after blank-row filtering.
 - `extract$columns`: selected source columns, in output order.
+
+When the archived source explicitly reports no deaths for the configured
+period, use `extract: {type: none, expected_record_count: 0}` and
+`clean: {}` (an empty mapping). Do not use `none` merely because a
+source is unavailable or has not been processed. The source file, DOI,
+and checksum are still required and verified; `none` does not parse the
+file. It produces an empty extracted artifact with provenance columns
+and a sidecar recording `extractor_type: none` and zero records. No
+`columns`, parser settings, extraction script, cleaning rules, or
+cleaning script are allowed for this type. Cleaning produces a zero-row
+artifact as well. For example:
+
+``` yaml
+source_id: ga_hall_2020to2021
+filename: hall_report.pdf
+doi: doi:10.70122/FK2/EXAMPLE/FILE
+state: ga
+agency: Hall County Jail
+years: [2020, 2021]
+vintage: "2022-01-01"
+source_md5: <md5 of archived report>
+extract:
+  type: none
+  expected_record_count: 0
+clean: {}
+```
 
 Excel configs also require `extract$range`, an explicit full A1
 rectangle such as `A1:F200` or `'Deaths 2020'!A1:F200`. Named ranges,

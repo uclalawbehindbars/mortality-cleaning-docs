@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,8 +98,10 @@ artifacts, status, record count, and warnings.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Reads a source configuration, verifies the fetched source artifact, and
 writes extracted RDS and YAML sidecar artifacts.</p>
-<p>Version 1 extraction supports CSV, Excel, PDF table, and locally saved HTML
-source artifacts.</p>
+<p>Version 1 extraction supports CSV, Excel, PDF table, locally saved HTML,
+and explicit <code>none</code> (zero deaths reported) source artifacts. <code>none</code> requires
+<code>expected_record_count: 0</code>, an empty <code>clean: {}</code> mapping, and a verified
+source file; it does not parse the file.</p>
 <p>CSV configs select columns by source header name or 1-based position; Excel
 configs use an explicit full A1 rectangle range and select columns by source
 header name or Excel column letter. Headered PDF table configs select columns

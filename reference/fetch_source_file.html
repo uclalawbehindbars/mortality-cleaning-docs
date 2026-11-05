@@ -17,7 +17,7 @@ contiguous runs of source years."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,9 @@ elements, a <code>dataset$vintage</code> (legacy top-level <code>vintage</code> 
 plus either a file <code>doi</code> or a numeric <code>database_id</code>.
 <code>source_md5</code> validates the downloaded file. If a file DOI is not yet
 available, <code>database_id</code> identifies the file instead. <code>dataset$doi</code>
-identifies the dataset and is not used to fetch a file.</p></dd>
+identifies the dataset; when the file DOI is missing, fetch uses the
+dataset metadata to find the file DOI and saves it to the config after
+verifying the download.</p></dd>
 
 
 <dt id="arg-file-destination">file_destination<a class="anchor" aria-label="anchor" href="#arg-file-destination"></a></dt>

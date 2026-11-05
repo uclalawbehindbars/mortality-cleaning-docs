@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,7 +132,7 @@ not once per table.</p>
 <ul>
 <li>
 <code>extract$type</code>: <code>csv</code>, <code>excel</code>,
-<code>pdf_table</code>, or <code>html</code>.</li>
+<code>pdf_table</code>, <code>html</code>, or <code>none</code>.</li>
 <li>
 <code>extract$expected_record_count</code>: the number of nonblank
 extracted rows expected after blank-row filtering.</li>
@@ -140,6 +140,30 @@ extracted rows expected after blank-row filtering.</li>
 <code>extract$columns</code>: selected source columns, in output
 order.</li>
 </ul>
+<p>When the archived source explicitly reports no deaths for the
+configured period, use
+<code>extract: {type: none, expected_record_count: 0}</code> and
+<code>clean: {}</code> (an empty mapping). Do not use <code>none</code>
+merely because a source is unavailable or has not been processed. The
+source file, DOI, and checksum are still required and verified;
+<code>none</code> does not parse the file. It produces an empty
+extracted artifact with provenance columns and a sidecar recording
+<code>extractor_type: none</code> and zero records. No
+<code>columns</code>, parser settings, extraction script, cleaning
+rules, or cleaning script are allowed for this type. Cleaning produces a
+zero-row artifact as well. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ga_hall_2020to2021</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> hall_report.pdf</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/EXAMPLE/FILE</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ga</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> Hall County Jail</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2020</span><span class="kw">,</span><span class="at"> </span><span class="dv">2021</span><span class="kw">]</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2022-01-01"</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of archived report&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> none</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span></code></pre></div>
 <p>Excel configs also require <code>extract$range</code>, an explicit
 full A1 rectangle such as <code>A1:F200</code> or
 <code>'Deaths 2020'!A1:F200</code>. Named ranges, whole-column ranges,
@@ -185,26 +209,26 @@ duplicates deterministically.</p>
 Jane Doe,2019,
 John Roe,2020,</code></pre>
 <p>and this config:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_2024</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.csv</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.csv&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> csv</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_2024</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.csv</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.csv&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> csv</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span></code></pre></div>
 <p>run extraction after the file has been fetched into the deterministic
 source path:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_source.html">extract_source</a></span><span class="op">(</span><span class="st">"path/to/source.yaml"</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">[[</span><span class="st">"ca_deaths_2024"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rds</span></span>
 <span><span class="va">result</span><span class="op">[[</span><span class="st">"ca_deaths_2024"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">yaml</span></span></code></pre></div>
@@ -212,20 +236,20 @@ source path:</p>
 one-output configs; use the ID in your configuration (not
 <code>result$rds</code>). The RDS contains selected columns followed by
 provenance columns. All columns are character:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>name      death_year source_state agency source_doi                         record_locator</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Jane Doe  <span class="dv">2019</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    line <span class="dv">2</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>John Roe  <span class="dv">2020</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    line <span class="dv">3</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>name      death_year source_state agency source_doi                         record_locator</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>Jane Doe  <span class="dv">2019</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    line <span class="dv">2</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>John Roe  <span class="dv">2020</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    line <span class="dv">3</span></span></code></pre></div>
 <p>The sidecar records the selected column mapping:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> death_year</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> death_year</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span></code></pre></div>
 <p>Blank rows are filtered after selected-column normalization. The
 <code>record_locator</code> keeps the physical CSV line number, so
 locators may have gaps when blank rows are skipped.</p>
@@ -244,57 +268,57 @@ alongside <code>source_tables</code>. A file can select a default
 files or datasets. For example, save this as
 <code>pipeline/ca/deaths-2020.yaml</code> (replace the illustrative file
 identifiers and checksum with real values):</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_file</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.xlsx</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.xlsx&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2020</span><span class="kw">]</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">dataset</span><span class="kw">:</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">  </span><span class="fu">title</span><span class="kw">:</span><span class="at"> California prison deaths</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="at">  </span><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="at">  </span><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="at">  </span><span class="fu">doi</span><span class="kw">:</span><span class="at"> 10.70122/FK2/ABC123</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="fu">format</span><span class="kw">:</span><span class="at"> pipeline/formats/quarter.yaml</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fu">source_tables</span><span class="kw">:</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_table_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_q1</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="at">    </span><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="at">      </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> First</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="at">      </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:B2</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="at">      </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="at">    </span><span class="fu">filter</span><span class="kw">:</span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="at">      </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_table_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_q2</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="at">    </span><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="at">      </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Second</span></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="at">      </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:B3</span></span>
-<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="at">      </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="at">    </span><span class="fu">filter</span><span class="kw">:</span></span>
-<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="at">      </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_file</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.xlsx</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.xlsx&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2020</span><span class="kw">]</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">dataset</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="at">  </span><span class="fu">title</span><span class="kw">:</span><span class="at"> California prison deaths</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="at">  </span><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="at">  </span><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="at">  </span><span class="fu">doi</span><span class="kw">:</span><span class="at"> 10.70122/FK2/ABC123</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="fu">format</span><span class="kw">:</span><span class="at"> pipeline/formats/quarter.yaml</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="fu">source_tables</span><span class="kw">:</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_table_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_q1</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="at">    </span><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="at">      </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> First</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="at">      </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:B2</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="at">      </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="at">    </span><span class="fu">filter</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="at">      </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_table_id</span><span class="kw">:</span><span class="at"> ca_deaths_2020_q2</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="at">    </span><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="at">      </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Second</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="at">      </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:B3</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="at">      </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="at">    </span><span class="fu">filter</span><span class="kw">:</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="at">      </span><span class="fu">filtered_row_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span></code></pre></div>
 <p>The selected format is a separate YAML file at
 <code>pipeline/formats/quarter.yaml</code>, <strong>relative to the
 project root</strong>, not to the source config. Its path must resolve
 to a file inside the project root (including after following
 symlinks):</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="at">    </span><span class="fu">full_name</span><span class="kw">:</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> copy</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> number</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> death_year</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="fu">filter</span><span class="kw">:</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="at">  </span><span class="fu">filters</span><span class="kw">:</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">column</span><span class="kw">:</span><span class="at"> full_name</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="at">      </span><span class="fu">predicate</span><span class="kw">:</span><span class="at"> eq</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="at">      </span><span class="fu">value</span><span class="kw">:</span><span class="at"> Jane Doe</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">clean</span><span class="kw">:</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">  </span><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">    </span><span class="fu">full_name</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> copy</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">    </span><span class="fu">death_year</span><span class="kw">:</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> number</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> death_year</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="fu">filter</span><span class="kw">:</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="at">  </span><span class="fu">filters</span><span class="kw">:</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">column</span><span class="kw">:</span><span class="at"> full_name</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="at">      </span><span class="fu">predicate</span><span class="kw">:</span><span class="at"> eq</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="at">      </span><span class="fu">value</span><span class="kw">:</span><span class="at"> Jane Doe</span></span></code></pre></div>
 <p>This example assumes <code>First</code> has one data row for Jane Doe
 and <code>Second</code> has two other rows; matching filter rules
 <strong>remove</strong> rows. Each table supplies its own
@@ -322,18 +346,18 @@ locator(s) and count plus only these extractor-specific options: CSV
 extraction have no additional non-locator option overrides. Columns may
 be varied explicitly by exact configured <code>source</code> name, not
 by cleaned output name:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Within one formatted table entry, if the format declares Name and Death Year:</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Second</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:C3</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_replace</span><span class="kw">:</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">      </span><span class="fu">with</span><span class="kw">:</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="at">        </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Full Name</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_exclude</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">Death Year</span><span class="kw">]</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_append</span><span class="kw">:</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Notes</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Within one formatted table entry, if the format declares Name and Death Year:</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Second</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:C3</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_replace</span><span class="kw">:</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="at">      </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="at">        </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Full Name</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_exclude</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">Death Year</span><span class="kw">]</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="at">  </span><span class="fu">columns_append</span><span class="kw">:</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Notes</span></span></code></pre></div>
 <p>These operations require unambiguous existing targets and full valid
 column mappings; the illustrated variation would also require cleaning
 rules that reference the resulting extracted columns (or corresponding
@@ -344,7 +368,7 @@ for different core stages. Cleaning and filtering variations are
 described in <a href="cleaning.html">Cleaning</a>.</p>
 <p>After fetching the physical file once, process all tables or select a
 single ID:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fetch_source_file.html">fetch_source_file</a></span><span class="op">(</span><span class="st">"pipeline/ca/deaths-2020.yaml"</span><span class="op">)</span> <span class="co"># one download, not one per sheet</span></span>
 <span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_source.html">extract_source</a></span><span class="op">(</span><span class="st">"pipeline/ca/deaths-2020.yaml"</span><span class="op">)</span></span>
 <span><span class="va">all</span><span class="op">[[</span><span class="st">"ca_deaths_2020_q1"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rds</span></span>
@@ -385,25 +409,25 @@ its own effective rules are unchanged.</p>
 contains the source table to extract. For example, if worksheet
 <code>Deaths 2020</code> has headers in row 1 and data in rows 2 through
 200:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_excel_2024</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.xlsx</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.xlsx&gt;</span></span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> </span><span class="st">"Deaths 2020"</span></span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:F200</span></span>
-<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">198</span></span>
-<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> D</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> ca_deaths_excel_2024</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.xlsx</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.xlsx&gt;</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> </span><span class="st">"Deaths 2020"</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:F200</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">198</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> D</span></span></code></pre></div>
 <p><code>sheet</code> may be a worksheet name or a 1-based worksheet
 position. The range may also name the sheet directly, for example
 <code>'Deaths 2020'!A1:F200</code>; a sheet-qualified range takes
@@ -423,32 +447,32 @@ range.</li>
 </ul>
 <p>Headerless Excel extraction uses <code>header: false</code> and
 supports <code>excel_column</code> selection only:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:C50</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="at">  </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">50</span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> A</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> C</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> excel</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:C50</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="at">  </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">50</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> A</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> C</span></span></code></pre></div>
 <p>The Excel sidecar records selected columns with their resolved
 source/default names, cleaned output names, and worksheet column
 letters:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> excel</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Deaths 2020</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet_position</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:F200</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="at">  </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> excel_selected_cells</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> A</span></span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> death_date</span></span>
-<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> D</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> excel</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet</span><span class="kw">:</span><span class="at"> Deaths 2020</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">  </span><span class="fu">sheet_position</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">  </span><span class="fu">range</span><span class="kw">:</span><span class="at"> A1:F200</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="at">  </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> excel_selected_cells</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> A</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> death_date</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> D</span></span></code></pre></div>
 <p>Excel <code>record_locator</code> values identify selected cells by
 worksheet coordinates. Contiguous selected cells in the same row are
 compressed into ranges, for example
@@ -464,24 +488,24 @@ with that local artifact. Extraction does not fetch a page, load assets,
 follow links (even to other saved files), or paginate. The tracked
 announcement-page fixture contains ten teasers, selected here as
 source-shaped title and body fields:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> az_announcements</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> announcements.html</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> az</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> ADCRR</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2026</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2026-09-28"</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of announcements.html&gt;</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> html</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".view.view-taxonomy-term .view-content &gt; .views-row"</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> title</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-node-title h2 &gt; a"</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> body</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-body &gt; p"</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> az_announcements</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> announcements.html</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> az</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> ADCRR</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2026</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2026-09-28"</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of announcements.html&gt;</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> html</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".view.view-taxonomy-term .view-content &gt; .views-row"</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> title</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-node-title h2 &gt; a"</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> body</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-body &gt; p"</span></span></code></pre></div>
 <p>With <code>source_file = "path/to/announcements.html"</code>,
 <code>extract_source("path/to/source.yaml", source_file = "path/to/announcements.html")</code>
 verifies <code>source_md5</code> before reading the page, and writes
@@ -507,18 +531,18 @@ text boundary, and mechanically normalizes whitespace. With
 <code>attribute</code>, extraction instead reads that attribute’s
 <strong>literal</strong> value; relative links are not resolved. For
 example:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> html</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"article.announcement"</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> heading</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"h2"</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> detail_link</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"a"</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> href</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> record_id</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> id</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> html</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"article.announcement"</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> heading</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"h2"</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> detail_link</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="at">      </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">"a"</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> href</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> record_id</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> id</span></span></code></pre></div>
 <p>CSS is the only supported selector language: XPath and output-name
 overrides are unsupported. Multiple field matches, invalid CSS,
 overlapping record elements, parser/encoding errors, unknown config
@@ -543,22 +567,22 @@ mapping lists each <code>source</code>, cleaned <code>output</code>,
 field <code>selector</code> (or <code>record_element</code>), and
 <code>value: text</code> or <code>value: attribute</code> (with the
 attribute name). For the announcement config, that context includes:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> html</span></span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".view.view-taxonomy-term .view-content &gt; .views-row"</span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">  </span><span class="fu">encoding</span><span class="kw">:</span><span class="at"> auto</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> html_record_index</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> title</span></span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> title</span></span>
-<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="at">  </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-node-title h2 &gt; a"</span></span>
-<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="at">  </span><span class="fu">value</span><span class="kw">:</span><span class="at"> text</span></span>
-<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> body</span></span>
-<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> body</span></span>
-<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="at">  </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-body &gt; p"</span></span>
-<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="at">  </span><span class="fu">value</span><span class="kw">:</span><span class="at"> text</span></span>
-<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="fu">record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
-<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> html</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="at">  </span><span class="fu">record_selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".view.view-taxonomy-term .view-content &gt; .views-row"</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="at">  </span><span class="fu">encoding</span><span class="kw">:</span><span class="at"> auto</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> html_record_index</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> title</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> title</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="at">  </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-node-title h2 &gt; a"</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="at">  </span><span class="fu">value</span><span class="kw">:</span><span class="at"> text</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> body</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> body</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="at">  </span><span class="fu">selector</span><span class="kw">:</span><span class="at"> </span><span class="st">".field--name-body &gt; p"</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="at">  </span><span class="fu">value</span><span class="kw">:</span><span class="at"> text</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="fu">record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span></code></pre></div>
 <p>Runtime warnings are retained in sidecar <code>warnings</code>,
 including on later cache skips (which need not re-emit them). Unselected
 page content—navigation, layout, scripts, publication dates, and
@@ -576,38 +600,38 @@ extraction is generic: the config identifies one or more page/table
 units, then the extractor concatenates the configured table rows in
 config order and page order before applying the same source-shaped
 output contract used by CSV and Excel.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> example_deaths_pdf_2024</span></span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.pdf</span></span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
-<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.pdf&gt;</span></span>
-<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
-<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
-<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
-<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
-<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2</span><span class="kw">]</span></span>
-<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb18-26"><a href="#cb18-26" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb18-27"><a href="#cb18-27" tabindex="-1"></a><span class="at">      </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb18-28"><a href="#cb18-28" tabindex="-1"></a><span class="at">        </span><span class="fu">snap_tolerance</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
-<span id="cb18-29"><a href="#cb18-29" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb18-30"><a href="#cb18-30" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb18-31"><a href="#cb18-31" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
-<span id="cb18-32"><a href="#cb18-32" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">source_id</span><span class="kw">:</span><span class="at"> example_deaths_pdf_2024</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">filename</span><span class="kw">:</span><span class="at"> deaths.pdf</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="fu">doi</span><span class="kw">:</span><span class="at"> doi:10.70122/FK2/ABC123/FILEABC</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="fu">state</span><span class="kw">:</span><span class="at"> ca</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="fu">agency</span><span class="kw">:</span><span class="at"> CDCR</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="fu">years</span><span class="kw">:</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2019</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="dv">2020</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="fu">vintage</span><span class="kw">:</span><span class="at"> </span><span class="st">"2024-01-31"</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span><span class="at"> https://dataverse.example.org</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="fu">source_md5</span><span class="kw">:</span><span class="at"> &lt;md5 of deaths.pdf&gt;</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb19-17"><a href="#cb19-17" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb19-18"><a href="#cb19-18" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
+<span id="cb19-19"><a href="#cb19-19" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb19-20"><a href="#cb19-20" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb19-21"><a href="#cb19-21" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb19-22"><a href="#cb19-22" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb19-23"><a href="#cb19-23" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2</span><span class="kw">]</span></span>
+<span id="cb19-24"><a href="#cb19-24" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb19-25"><a href="#cb19-25" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb19-26"><a href="#cb19-26" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb19-27"><a href="#cb19-27" tabindex="-1"></a><span class="at">      </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb19-28"><a href="#cb19-28" tabindex="-1"></a><span class="at">        </span><span class="fu">snap_tolerance</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
+<span id="cb19-29"><a href="#cb19-29" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb19-30"><a href="#cb19-30" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb19-31"><a href="#cb19-31" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
+<span id="cb19-32"><a href="#cb19-32" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span></code></pre></div>
 <p>Each <code>extract$tables</code> entry describes a detected table
 unit:</p>
 <ul>
@@ -665,21 +689,21 @@ detected row numbers, so skipped rows and header rows can create
 gaps.</p>
 <p>The PDF sidecar records the resolved extraction options without
 copying source data:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> pdf_page_table_row</span></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="at">  </span><span class="fu">password_provided</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
-<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="at">    </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="at">    </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="at">    </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
-<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="at">    </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="at">      </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="at">      </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">extractor_type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> pdf_page_table_row</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="at">  </span><span class="fu">password_provided</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="at">    </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="at">    </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="at">    </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="at">    </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="at">      </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="at">      </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="pdf-dependency-expectations-and-local-setup">PDF dependency expectations and local setup<a class="anchor" aria-label="anchor" href="#pdf-dependency-expectations-and-local-setup"></a>
 </h3>
@@ -705,17 +729,17 @@ dependency.</p>
 <p>Some public-record PDFs are encrypted but distributed with a public
 access password. For those files, provide the password in the source
 config:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="at">  </span><span class="fu">password</span><span class="kw">:</span><span class="at"> </span><span class="st">"&lt;public access password&gt;"</span></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
-<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
-<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> pdf_table</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="at">  </span><span class="fu">password</span><span class="kw">:</span><span class="at"> </span><span class="st">"&lt;public access password&gt;"</span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span></code></pre></div>
 <p>The password is passed to <code>pdfplumber</code> only when opening
 the PDF. Sidecars must not contain the password; they record only
 <code>extract_options$password_provided: true</code> or
@@ -752,17 +776,17 @@ same mechanical text normalization used for selected values. If a
 dropped column contains nonblank cells, extraction emits a runtime
 warning and records structured warnings in the sidecar. For CSV,
 warnings include the physical parsed position:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span></span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> dropped_column_nonblank</span></span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Notes</span></span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="at">  </span><span class="fu">nonblank_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
-<p>For Excel, warnings include the worksheet column letter instead:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span></span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> dropped_column_nonblank</span></span>
 <span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Notes</span></span>
-<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> C</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
 <span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="at">  </span><span class="fu">nonblank_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
+<p>For Excel, warnings include the worksheet column letter instead:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">warnings</span><span class="kw">:</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> dropped_column_nonblank</span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Notes</span></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="at">  </span><span class="fu">excel_column</span><span class="kw">:</span><span class="at"> C</span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="at">  </span><span class="fu">nonblank_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
 <p>For PDF, warnings use the parsed table source name and 1-based table
 column position. Columns outside configured PDF table entries are
 outside the extraction universe and are not inspected. Columns outside
@@ -792,7 +816,7 @@ extraction removes temporary files on a best-effort basis and attempts
 to restore the previous final artifact pair. This protects against
 ordinary write failures, but it is not a multi-file atomic transaction
 across process termination or operating-system failure.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_source.html">extract_source</a></span><span class="op">(</span><span class="st">"path/to/source.yaml"</span>, force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -832,16 +856,16 @@ the source data (e.g., page number), and that the number of rows matches
 is not responsible, however, for adding generic pipeline columns like
 <code>state</code>, <code>source_doi</code>, or <code>agency</code>.</p>
 <p>In the YAML:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
-<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> csv</span><span class="co"> # replace with 'script' when available</span></span>
-<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="st">"pipeline/&lt;state&gt;/scripts/&lt;name_of_script&gt;.R"</span></span>
-<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> X</span><span class="co"> # number of records extracted </span></span>
-<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> full_text</span><span class="co"> # for example if pulling data from html or block of text </span></span>
-<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> record_locator</span><span class="co"> # **required** column </span></span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">    # may have more columns if extracting from image of table </span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">extract</span><span class="kw">:</span></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> csv</span><span class="co"> # replace with 'script' when available</span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="st">"pipeline/&lt;state&gt;/scripts/&lt;name_of_script&gt;.R"</span></span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> X</span><span class="co"> # number of records extracted </span></span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> full_text</span><span class="co"> # for example if pulling data from html or block of text </span></span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> record_locator</span><span class="co"> # **required** column </span></span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a><span class="co">    # may have more columns if extracting from image of table </span></span></code></pre></div>
 <p>In the extract script:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">extract_records</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span>, <span class="va">source_config</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">record_text</span> <span class="op">&lt;-</span> <span class="co"># extract text from file </span></span>
 <span>  <span class="va">position</span> <span class="op">&lt;-</span> <span class="co"># some locator of where item was in file, such as page number </span></span>

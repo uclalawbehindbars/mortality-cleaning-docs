@@ -25,8 +25,9 @@ fetch_source_file(
   `dataset$vintage` (legacy top-level `vintage` also works), plus either
   a file `doi` or a numeric `database_id`. `source_md5` validates the
   downloaded file. If a file DOI is not yet available, `database_id`
-  identifies the file instead. `dataset$doi` identifies the dataset and
-  is not used to fetch a file.
+  identifies the file instead. `dataset$doi` identifies the dataset;
+  when the file DOI is missing, fetch uses the dataset metadata to find
+  the file DOI and saves it to the config after verifying the download.
 
 - file_destination:
 

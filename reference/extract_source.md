@@ -54,8 +54,10 @@ artifacts, status, record count, and warnings.
 Reads a source configuration, verifies the fetched source artifact, and
 writes extracted RDS and YAML sidecar artifacts.
 
-Version 1 extraction supports CSV, Excel, PDF table, and locally saved
-HTML source artifacts.
+Version 1 extraction supports CSV, Excel, PDF table, locally saved HTML,
+and explicit `none` (zero deaths reported) source artifacts. `none`
+requires `expected_record_count: 0`, an empty `clean: {}` mapping, and a
+verified source file; it does not parse the file.
 
 CSV configs select columns by source header name or 1-based position;
 Excel configs use an explicit full A1 rectangle range and select columns
