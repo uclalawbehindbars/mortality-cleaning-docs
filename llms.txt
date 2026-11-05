@@ -74,6 +74,9 @@ setup, you should run `just setup-local` instead.
 - [`load_source_config()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/load_source_config.md)
   : Load a source file configuration from YAML.
 
+- [`publish_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/publish_source.md)
+  : Publish a source's Dataverse dataset
+
 - [`upload_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/upload_source.md)
   : Create a Dataverse dataset and upload a configured source file
 

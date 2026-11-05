@@ -1,5 +1,9 @@
 # Changelog
 
+## dicr 0.3.1
+
+- Added `publish_source` function.
+
 ## dicr 0.3.0
 
 - No substantive changes; testing version-bump system.
