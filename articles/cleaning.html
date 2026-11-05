@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -426,37 +426,43 @@ Common types are:</p>
 target type.</td>
 </tr>
 <tr class="even">
+<td align="left"><code>clean_text</code></td>
+<td align="left">
+<code>source</code>: copy text, normalizing
+capitalization and whitespace.</td>
+</tr>
+<tr class="odd">
 <td align="left"><code>constant</code></td>
 <td align="left">
 <code>value</code>: supply the same value on each
 row.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>default</code></td>
 <td align="left">
 <code>source</code>, <code>default_value</code>: copy
 and coerce nonblank input; fill missing input with
 <code>default_value</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>map</code></td>
 <td align="left">
 <code>source</code>, named <code>map</code>: explicitly
 map each nonblank value.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>concat</code></td>
 <td align="left">
 <code>sources</code>, <code>separator</code>: join
 nonblank inputs in order; all missing yields missing.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>number</code></td>
 <td align="left">
 <code>source</code>: parse a finite number;
 integer/year targets require whole numbers.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>date</code></td>
 <td align="left">
 <code>source</code>, required lubridate
@@ -464,19 +470,19 @@ integer/year targets require whole numbers.</td>
 <code>dmy_hms</code>): parse text as a date, discarding any time.
 Invalid nonblank dates fail.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>date_from_excel</code></td>
 <td align="left">
 <code>source</code>, optional <code>date_only</code>:
 parse an Excel serial using the workbook epoch.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>time</code></td>
 <td align="left">
 <code>source</code>: extract an Excel serial’s
 fractional time as <code>HH:MM:SS</code>, truncating seconds.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">
 <code>date_year</code>, <code>date_month</code>
 </td>
@@ -484,7 +490,7 @@ fractional time as <code>HH:MM:SS</code>, truncating seconds.</td>
 <code>source: '@death_date'</code>: derive year or
 English month from a parsed date.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>age</code></td>
 <td align="left">
 <code>sources: ['@birth_date', '@death_date']</code>,
@@ -496,7 +502,7 @@ are interpolated as July 1; missing birth day with a known month is
 interpolated as the 15th. Year and month sources may be raw columns or
 <code>@</code> cleaned-field references.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>regex</code></td>
 <td align="left">
 <code>source</code>, <code>pattern</code>,
@@ -504,7 +510,7 @@ interpolated as the 15th. Year and month sources may be raw columns or
 one named or 1-based numbered group; allow an empty capture as
 <code>""</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>race</code></td>
 <td align="left">
 <code>source</code>, literal <code>separator</code>,

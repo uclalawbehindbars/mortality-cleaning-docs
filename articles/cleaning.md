@@ -367,6 +367,7 @@ source value, including identity mappings. Common types are:
 | Type | Inputs and behavior |
 |:---|:---|
 | `copy` | `source`: transfer a value, coerced to the target type. |
+| `clean_text` | `source`: copy text, normalizing capitalization and whitespace. |
 | `constant` | `value`: supply the same value on each row. |
 | `default` | `source`, `default_value`: copy and coerce nonblank input; fill missing input with `default_value`. |
 | `map` | `source`, named `map`: explicitly map each nonblank value. |

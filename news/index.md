@@ -1,5 +1,9 @@
 # Changelog
 
+## dicr 0.3.2
+
+- Updated cleaning docs.
+
 ## dicr 0.3.1
 
 - Added `publish_source` function.
