@@ -31,13 +31,15 @@ concatenating data from multiple columns into a consistent set of
 cleaning “rules” that we use to produce each column in the cleaned data
 fram.
 
-Declare one rule per cleaned schema field under `clean$rules`, keyed by
-the output field name. Each rule declares a `source` column, which is
-either a reference to a column in the extracted dataframe or a forward
-reference to a column created by another cleaning rule. Use the `@`
-prefix to create a forward reference (i.e., `@death_date` refers to the
-`death_date` column in the cleaned data; `death_date` without the prefix
-would refer to the `death_date` column in the extracted data).
+Declare rules under `clean$rules`, keyed by the field they produce.
+Fields not in the release schema are temporary text columns available to
+other rules but omitted from the cleaned artifact; manual corrections
+can only target release fields. Each rule declares a `source` column,
+which is either a reference to a column in the extracted dataframe or a
+forward reference to a column created by another cleaning rule. Use the
+`@` prefix to create a forward reference (i.e., `@death_date` refers to
+the `death_date` column in the cleaned data; `death_date` without the
+prefix would refer to the `death_date` column in the extracted data).
 
 For example:
 
@@ -57,6 +59,9 @@ clean:
       pattern: '^(?<given>[^ ]+) (?<family>[^ ]+)(?: Jr[.])?$'
       capture: given
     last_name:
+      type: clean_text
+      source: '@last_name_raw'
+    last_name_raw:
       type: regex
       source: name
       pattern: '^(?<given>[^ ]+) (?<family>[^ ]+)(?: Jr[.])?$'

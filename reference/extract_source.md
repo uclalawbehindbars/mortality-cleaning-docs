@@ -76,6 +76,28 @@ structured missing/blank-record warnings. Source-specific prose
 interpretation, including dates, names, IDs, and locations embedded in
 announcement bodies, belongs to cleaning.
 
+Optional `extract.filters` rules remove matching selected records from
+CSV, Excel, PDF-table, HTML, or extraction-script output after
+selection, text normalization, and blank-row removal, but before
+`expected_record_count` checks and publication. Rules use selected
+*output* column names (including columns selected only for exclusion),
+not source selectors. They share the post-clean filter predicates,
+conjunctions, negation, ordered removal, and no-rows/all-rows warnings,
+but compare normalized text rather than cleaned numeric or date values.
+`is_na` matches missing values, not empty text; `eq` with `""` matches
+empty text. Surviving rows retain their original locators. `none` cannot
+have filters.
+
+A format's `extract.filters` list is inherited unless a table replaces
+it wholesale; a table-level `filters: []` disables it. A null list is
+invalid. For configured filters, the sidecar records
+`extract_filtered_record_count` (zero for `[]`), counting only rows
+removed by rules, not blank or unselected rows, and includes rule
+warnings alongside extraction warnings. Invalid or absent selected
+output names fail even on cache hits or zero-row results; rule changes
+contribute to the existing config/format cache identity. Post-clean
+filtering remains separate and retains typed comparisons.
+
 PDF extraction requires Python plus the pinned `pdfplumber` dependency
 in the supported environment. PDF passwords are used only to open
 public-record PDFs and are not written to sidecars; sidecars record only

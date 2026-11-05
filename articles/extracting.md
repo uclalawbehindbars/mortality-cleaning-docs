@@ -63,8 +63,8 @@ top-level file identifiers once, not once per table.
 Required extraction fields are:
 
 - `extract$type`: `csv`, `excel`, `pdf_table`, `html`, or `none`.
-- `extract$expected_record_count`: the number of nonblank extracted rows
-  expected after blank-row filtering.
+- `extract$expected_record_count`: the number of retained rows expected
+  after blank-row removal and any extract-time filtering.
 - `extract$columns`: selected source columns, in output order.
 
 When the archived source explicitly reports no deaths for the configured
@@ -199,6 +199,55 @@ Blank rows are filtered after selected-column normalization. The
 `record_locator` keeps the physical CSV line number, so locators may
 have gaps when blank rows are skipped.
 
+## Extract-time filters
+
+Optional `extract.filters` removes matching selected source-table
+records **before** count validation and publication. It is supported by
+CSV, Excel, PDF-table, HTML, and extraction-script output, but not
+`type: none`. A rule names a selected **output** column (for example,
+`facility_type`), not the source selector. Select fields used only for
+exclusion into the extracted artifact; cleaning can omit them later. For
+example:
+
+``` yaml
+extract:
+  type: csv
+  expected_record_count: 1 # count after blank rows and matching rows are removed
+  columns:
+    - source: Name
+    - source: Facility Type
+  filters:
+    - column: facility_type
+      predicate: eq
+      value: Private
+```
+
+Rules run in order on remaining rows after parsing, row and column
+selection, mechanical text normalization, and removal of rows blank
+across selected columns. They use the same predicates, conjunctions,
+negation, and **remove-matching-rows** behavior as post-clean rules, but
+comparisons use normalized **text**, not numeric or date types. `is_na`
+matches missing values, while `eq` with `""` matches an empty selected
+cell. These are different from post-clean typed comparisons; post-clean
+rules and sidecars are unchanged. Surviving records keep their original
+locators (including gaps and selected Excel cell extent). Parser errors
+and extraction warnings remain visible even when a rule would exclude a
+row.
+
+The extraction sidecar includes `extract_filtered_record_count` when
+`extract.filters` is configured: only rows removed by rules are counted,
+not blank rows or records outside source selectors. It is `0` for
+`filters: []`; unfiltered configs keep their original artifact values
+(including normalized empty text for missing cells). No removed row
+contents or locators are recorded in the sidecar. Rule warnings such as
+`No rows filtered` and `All rows filtered` appear alongside existing
+extraction warnings. Invalid rules, unknown selected output names, or
+selected names that conflict with provenance columns (such as
+`record_locator`) fail before publication, including on zero-row results
+and cache hits. Changes to the rules invalidate the normal config/format
+checksum cache identity; an unchanged cache hit skips and `force = TRUE`
+recomputes.
+
 ## Multiple source tables and a reusable format
 
 Keep file identity (`filename`, file `doi` or `database_id`,
@@ -287,8 +336,11 @@ While using a format, table `extract` supports the table locator(s) and
 count plus only these extractor-specific options: CSV `delimiter`,
 `skip`, `header`, `encoding`; Excel `header`; PDF `password`,
 `table_settings`. HTML and script extraction have no additional
-non-locator option overrides. Columns may be varied explicitly by exact
-configured `source` name, not by cleaned output name:
+non-locator option overrides. All types may override `filters`: omit it
+to inherit format rules, provide a list to replace the entire list, or
+use `filters: []` to disable inherited rules. `filters: null` is
+invalid. Columns may be varied explicitly by exact configured `source`
+name, not by cleaned output name:
 
 ``` yaml
 # Within one formatted table entry, if the format declares Name and Death Year:
@@ -813,10 +865,13 @@ The extraction engine will check the output dataframe to ensure that it
 contains all columns specified in `source_config$extract$columns` (so
 you must still record the extracted columns in the extraction config),
 as well as a `record_locator` column indicating where each row appears
-in the source data (e.g., page number), and that the number of rows
-matches `source_config$expected_record_count`. The extraction script is
-not responsible, however, for adding generic pipeline columns like
-`state`, `source_doi`, or `agency`.
+in the source data (e.g., page number). If `extract.filters` is
+configured, its rules use the selected output columns and returned
+record locators; the script need not implement filtering itself. The
+engine checks the retained row count against
+`extract.expected_record_count`. The extraction script is not
+responsible for adding generic pipeline columns like `source_state`,
+`source_doi`, or `agency`.
 
 In the YAML:
 

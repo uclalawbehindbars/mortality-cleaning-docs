@@ -1,5 +1,13 @@
 # Changelog
 
+## dicr 0.5.0
+
+- Enabled intermediate cleaning rules.
+
+## dicr 0.4.0
+
+- Added extraction-time filtering.
+
 ## dicr 0.3.2
 
 - Updated cleaning docs.

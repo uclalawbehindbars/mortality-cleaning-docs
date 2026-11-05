@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,12 +93,14 @@ tasks like renaming columns, parsing numbers or dates, mapping values,
 and concatenating data from multiple columns into a consistent set of
 cleaning “rules” that we use to produce each column in the cleaned data
 fram.</p>
-<p>Declare one rule per cleaned schema field under
-<code>clean$rules</code>, keyed by the output field name. Each rule
-declares a <code>source</code> column, which is either a reference to a
-column in the extracted dataframe or a forward reference to a column
-created by another cleaning rule. Use the <code>@</code> prefix to
-create a forward reference (i.e., <code>@death_date</code> refers to the
+<p>Declare rules under <code>clean$rules</code>, keyed by the field they
+produce. Fields not in the release schema are temporary text columns
+available to other rules but omitted from the cleaned artifact; manual
+corrections can only target release fields. Each rule declares a
+<code>source</code> column, which is either a reference to a column in
+the extracted dataframe or a forward reference to a column created by
+another cleaning rule. Use the <code>@</code> prefix to create a forward
+reference (i.e., <code>@death_date</code> refers to the
 <code>death_date</code> column in the cleaned data;
 <code>death_date</code> without the prefix would refer to the
 <code>death_date</code> column in the extracted data).</p>
@@ -118,13 +120,16 @@ create a forward reference (i.e., <code>@death_date</code> refers to the
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="at">      </span><span class="fu">capture</span><span class="kw">:</span><span class="at"> given</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">    </span><span class="fu">last_name</span><span class="kw">:</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> regex</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="at">      </span><span class="fu">capture</span><span class="kw">:</span><span class="at"> family</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="at">    </span><span class="fu">full_name</span><span class="kw">:</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> copy</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span></code></pre></div>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> clean_text</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">'@last_name_raw'</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">    </span><span class="fu">last_name_raw</span><span class="kw">:</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> regex</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="at">      </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'^(?&lt;given&gt;[^ ]+) (?&lt;family&gt;[^ ]+)(?: Jr[.])?$'</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="at">      </span><span class="fu">capture</span><span class="kw">:</span><span class="at"> family</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="at">    </span><span class="fu">full_name</span><span class="kw">:</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> copy</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> name</span></span></code></pre></div>
 <p>The cleaning engine applies rules in dependency order, meaning that
 rules referred to with forward references are generated first. In the
 example above, the cleaning engine will first produce the cleaned

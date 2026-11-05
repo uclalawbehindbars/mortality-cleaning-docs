@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,6 +117,24 @@ selection (<code>auto</code> or override) and a declared page charset when prese
 field mappings, and structured missing/blank-record warnings.
 Source-specific prose interpretation, including dates, names, IDs, and
 locations embedded in announcement bodies, belongs to cleaning.</p>
+<p>Optional <code>extract.filters</code> rules remove matching selected records from CSV,
+Excel, PDF-table, HTML, or extraction-script output after selection, text
+normalization, and blank-row removal, but before <code>expected_record_count</code>
+checks and publication. Rules use selected <em>output</em> column names (including
+columns selected only for exclusion), not source selectors. They share the
+post-clean filter predicates, conjunctions, negation, ordered removal, and
+no-rows/all-rows warnings, but compare normalized text rather than cleaned
+numeric or date values. <code>is_na</code> matches missing values, not empty text;
+<code>eq</code> with <code>""</code> matches empty text. Surviving rows retain their original
+locators. <code>none</code> cannot have filters.</p>
+<p>A format's <code>extract.filters</code> list is inherited unless a table replaces it
+wholesale; a table-level <code>filters: []</code> disables it. A null list is invalid.
+For configured filters, the sidecar records <code>extract_filtered_record_count</code>
+(zero for <code>[]</code>), counting only rows removed by rules, not blank or unselected
+rows, and includes rule warnings alongside extraction warnings. Invalid or
+absent selected output names fail even on cache hits or zero-row results;
+rule changes contribute to the existing config/format cache identity.
+Post-clean filtering remains separate and retains typed comparisons.</p>
 <p>PDF extraction requires Python plus the pinned <code>pdfplumber</code> dependency in
 the supported environment. PDF passwords are used only to open public-record
 PDFs and are not written to sidecars; sidecars record only whether a

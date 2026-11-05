@@ -52,14 +52,16 @@ status, and record count.
 
 ## Details
 
-`clean$rules` is a mapping keyed by cleaned schema field. Each rule has
-a `type` and rule-specific arguments, but no repeated `field`
-declaration. Raw `source`/`sources` inputs use source column names,
-cleaned the same way as extracted columns; `@field` refers to another
-rule, including one declared later. Dependencies are resolved before
-records are evaluated; each field runs once per record. Types include
-copy, clean_text, regex, constant, default, map, concat, number, date,
-date_from_excel, time, date_year, date_month, age, and race.
+`clean$rules` is a mapping keyed by output field. Fields absent from the
+release schema are temporary rule inputs and are omitted from the
+artifact. Temporary fields are scalar text; corrections target release
+fields only. Each rule has a `type` and rule-specific arguments, but no
+repeated `field` declaration. Raw `source`/`sources` inputs use source
+column names, cleaned the same way as extracted columns; `@field` refers
+to another rule, including one declared later. Dependencies are resolved
+before records are evaluated; each field runs once per record. Types
+include copy, clean_text, regex, constant, default, map, concat, number,
+date, date_from_excel, time, date_year, date_month, age, and race.
 `clean_text` trims whitespace, removes leading and trailing punctuation,
 converts to uppercase, and maps empty text to missing. Date rules use a
 lubridate order such as `mdy` or `dmy_hms`. Excel serial rules obtain
