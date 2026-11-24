@@ -3,7 +3,10 @@
 ## All functions
 
 - [`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
-  : Clean one extracted source without changing its record cardinality.
+  : Clean extracted or disaggregated source records row-for-row.
+
+- [`disaggregate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/disaggregate_source.md)
+  : Disaggregate count columns into inferred death records
 
 - [`expand_file_destination()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/expand_file_destination.md)
   : Expand a file destination template string
@@ -28,6 +31,9 @@
 
 - [`upload_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/upload_source.md)
   : Create a Dataverse dataset and upload a configured source file
+
+- [`validate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source.md)
+  : Publish filtered source records as validated records.
 
 - [`validate_source_file_md5()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source_file_md5.md)
   : Validate the source file MD5 matches the configured value.

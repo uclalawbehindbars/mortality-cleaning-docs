@@ -68,8 +68,11 @@ elements with `extract$record_selector` (CSS) and require
 `extract$expected_record_count` and a nonempty `extract$columns` list.
 Each HTML column has a `source` label, an optional scoped CSS `selector`
 (default: the record element), and an optional `attribute` (default: DOM
-text). HTML reads only the local artifact: it never fetches, follows
-links, or paginates. Record locators refer to raw matches before blank
+text). `html_table` configs use a CSS `table_selector` and select
+columns by the headers returned by rvest's `html_table()` or by 1-based
+position; rows retain table-index and row-index locators. Both HTML
+methods read only the local artifact: it never fetches, follows links,
+or paginates. Record locators refer to raw matches before blank
 filtering; HTML sidecars record selectors, encoding selection (`auto` or
 override) and a declared page charset when present, field mappings, and
 structured missing/blank-record warnings. Source-specific prose
@@ -77,8 +80,8 @@ interpretation, including dates, names, IDs, and locations embedded in
 announcement bodies, belongs to cleaning.
 
 Optional `extract.filters` rules remove matching selected records from
-CSV, Excel, PDF-table, HTML, or extraction-script output after
-selection, text normalization, and blank-row removal, but before
+CSV, Excel, PDF-table, HTML, HTML-table, or extraction-script output
+after selection, text normalization, and blank-row removal, but before
 `expected_record_count` checks and publication. Rules use selected
 *output* column names (including columns selected only for exclusion),
 not source selectors. They share the post-clean filter predicates,

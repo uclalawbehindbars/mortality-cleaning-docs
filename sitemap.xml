@@ -13,6 +13,7 @@
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/index.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/news/index.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.html</loc></url>
+<url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/disaggregate_source.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/expand_file_destination.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/fetch_source_file.html</loc></url>
@@ -22,6 +23,7 @@
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/load_source_config.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/publish_source.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/upload_source.html</loc></url>
+<url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source_file_md5.html</loc></url>
 <url><loc>https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source_md5_config.html</loc></url>
 </urlset>

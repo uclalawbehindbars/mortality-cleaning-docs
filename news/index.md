@@ -1,5 +1,21 @@
 # Changelog
 
+## dicr 0.7.1
+
+- Improved error message for disaggregation.
+
+## dicr 0.7.0
+
+- Added `html_table` extraction method.
+- Added optional disaggregation step.
+
+## dicr 0.6.0
+
+- Added validation/QA stage to run after cleaning and filtering records.
+- Enabled extraction from CSVs with embedded newlines.
+- Changed CSV record locators to use *logical row number* rather than
+  physical line number.
+
 ## dicr 0.5.0
 
 - Enabled intermediate cleaning rules.

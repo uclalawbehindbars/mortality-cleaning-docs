@@ -5,21 +5,33 @@
 library(dicr)
 ```
 
-The cleaning stage in our records-processing pipeline takes an extracted
-source and produces a clean row for each row in the extracted source
-data. Note that one row may or may not be identical to one unique death;
-the cleaning stage does not handle duplicate or split data; it outputs
-the same number of rows in the cleaned dataframe as it receives.
+The cleaning stage takes extracted source rows, or inferred rows when
+disaggregation is configured, and produces one cleaned row per input
+row. A row may or may not correspond to a unique death; cleaning does
+not handle duplicate or split data and never changes its input row
+count.
 
 Run
 [`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
 first (see [Extracting source
 tables](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/extracting.md));
-cleaning reads its RDS and matching YAML sidecar. The
+cleaning reads its RDS and matching YAML sidecar. For aggregate-count
+tables, explicitly run
+[`disaggregate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/disaggregate_source.md)
+between extraction and cleaning. The full workflow is
+[`extract_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/extract_source.md)
+→ optional
+[`disaggregate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/disaggregate_source.md)
+→
 [`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
-function never adds, drops, deduplicates, or combines source records.
-Aggregate expansion, record resolution, and release validation are
-separate stages.
+→
+[`filter_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/filter_source.md)
+→
+[`validate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/validate_source.md).
+Validation reads the **post-clean filtered** RDS, not the extracted or
+intermediate cleaned records. The
+[`clean_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/clean_source.md)
+function never adds, drops, deduplicates, or combines rows.
 
 ## How It Works
 
@@ -166,25 +178,138 @@ to cleaned schema fields; a filtering script defines
 
 ## Aggregate data
 
-Some states hate transparency, so they only provided us with aggregate
-counts of deaths with varying degrees of specificity. For sources with
-aggregate counts, the extraction stage produces a dataframe with one row
-per count, with all values stored as characters; for instance,
-`"2025","Male","25","Row 5"` might be the `year`, `sex`,
-`aggregate_count`, and `record_locator` for one count.
+Some sources report aggregate counts rather than one row per death. For
+a single non-overlapping count column, run the optional disaggregation
+stage **after extraction and before cleaning**. It creates inferred
+death records, not agency-reported individuals or durable person
+identities. For example, annual counts may look like:
 
-The cleaning stage does not disagreggate these aggregate counts.
-Instead, it merely converts them to the correct column names and data
-types; cleaning the example row above would produce
-`2025,"Male",25,"Source ID:Row 5"` with names `death_year`, `sex`,
-`aggregate_count`, and `source_record`. Disaggregation will be applied
-at a later stage in the pipeline.
+| year | deaths | record_locator |
+|------|--------|----------------|
+| 2021 | 1      | Table 1!Row 1  |
+| 2022 | 3      | Table 1!Row 2  |
 
-To ensure a consistent API for the reshaping engine, the cleaning engine
-produces `aggregate_count` values for *all* sources. If the cleaning
-config defines an `aggregate_count` rule, this will be generated from
-the extracted data; otherwise, it assumes the data is already
-individualized and sets `aggregate_count` to `1` for each row.
+…and produce this source-shaped inferred artifact (the `deaths` count
+column is consumed):
+
+| year | record_locator           |
+|------|--------------------------|
+| 2021 | Table 1!Row 1!Inferred 1 |
+| 2022 | Table 1!Row 2!Inferred 1 |
+| 2022 | Table 1!Row 2!Inferred 2 |
+| 2022 | Table 1!Row 2!Inferred 3 |
+
+**Do not select a total and its component categories together.** For
+example, if `total` includes `natural` and `suicide`, selecting all
+three counts expands some deaths twice. Select only non-overlapping
+categories and check their meaning against the report. Even when
+`expected_record_count` matches, the assertion checks only the number of
+generated rows: it **cannot prove categories are disjoint** or that no
+deaths were double-counted. A reported zero produces no rows (including
+an all-zero table); missing, invalid, or mismatched counts stop the
+stage without replacing its previous artifact.
+
+Configure the selected extracted column and the expected *inferred*
+record count on the table (or on a legacy single-table source),
+separately from extraction’s expected *source-row* count:
+
+``` yaml
+disaggregate:
+  count_column: deaths
+  expected_record_count: 4
+clean:
+  rules:
+    death_year:
+      type: number
+      source: year
+```
+
+For multiple count columns, configure an ordered pivot over the
+*extracted* column names. The generated `category` field contains the
+selected column name; `reported_count` is the intermediate count field
+and must match `count_column`. The consumed count columns are removed,
+while other extracted text (such as `year`) is carried into each
+inferred row for subsequent cleaning rules:
+
+``` yaml
+disaggregate:
+  pivot:
+    pivot_columns: [natural, suicide] # do not also include a total
+    values_column_name: category
+    count_column_name: reported_count
+  count_column: reported_count
+  expected_record_count: 4
+clean:
+  rules:
+    death_year: {type: number, source: year}
+    circumstance_specific: {type: copy, source: category}
+```
+
+The engine retains extracted source-row order, then the configured
+pivot-column order within each row. For unusual layouts, use a script
+**instead of** `count_column` or `pivot`:
+
+``` yaml
+disaggregate:
+  script: pipeline/<state>/scripts/counts.R
+  expected_record_count: 4
+```
+
+The trusted script defines
+`disaggregate_records(records, source_config)` and returns a data frame
+of character-valued source-shaped columns. Every output row must have a
+`record_locator` referencing an original extracted row, plus
+`source_state` and `agency`; it may return zero or multiple rows per
+original and may change other source columns. The engine groups rows by
+original extracted-row order (retaining script order within each group)
+and replaces their locators with inferred ones. Scripts are reviewed R
+code, not sandboxed.
+
+Run each configured stage explicitly, using the same source YAML:
+
+``` r
+
+config <- "path/to/source.yaml"
+extract_source(config)
+disaggregate_source(config)
+clean_source(config)
+filter_source(config)
+validate_source(config)
+```
+
+Cleaning remains row-for-row and reads the inferred artifact only when
+`disaggregate` is configured; otherwise it reads extraction directly and
+no pass-through disaggregated artifact is made. The extraction
+`extract.expected_record_count` checks retained **source rows** (two
+above); `disaggregate.expected_record_count` checks **inferred rows**
+(four above), and the disaggregation sidecar records
+`source_record_count` and `record_count` for those stages. Filtering’s
+`filter.filtered_row_count` checks rows **remaining after post-clean
+filtering**, while validation’s `qa` expectations inspect those final
+rows. None of these counts asserts person-level identity.
+
+The engine assigns `<original record_locator>!Inferred N`, numbering
+generation order from one **per original row**, across categories.
+Inferred rows are not agency-reported individual records. Cleaning
+carries the locator into `source_record` as
+`<source_id>:<record_locator>`; an ordinary `clean.corrections` entry
+alongside the table’s existing `clean.rules` can target an inferred
+locator, e.g.:
+
+``` yaml
+clean:
+  corrections:
+    - record_locator: 'Table 1!Row 2!Inferred 2'
+      field: death_year
+      replacement: 2022
+      reason: Verified against source
+```
+
+A suffix is **not a durable person ID**. After source revisions, changes
+in source-row order, pivot order, or script output order, manually
+review every correction to an inferred locator and its reason against
+the source. The same index may refer to a different inferred death after
+reordering.
 
 ## Handling Edge Cases
 
@@ -194,9 +319,10 @@ rule to generate a cleaned column. Maybe a correctional agency used
 one random column, they inexplicably used `YYYY-MM-DD` format. Instead
 of trying to create rules that handle every imaginable edge case, the
 default behavior is for the cleaning engine to produce a typed `NA`
-value for cases that don’t fit the configured rule. The validation
-engine (not yet configured) will flag unexpected `NA` values, allowing
-us to adjust the cleaning config to handle them appropriately.
+value for cases that don’t fit the configured rule. A configured
+`qa.required_columns` check will flag unexpected `NA` values in those
+final fields, allowing us to adjust the cleaning config to handle them
+appropriately.
 
 For rules with a small number of failing edge cases, the simplest
 approach is to add a `corrections` section to your cleaning config. The
@@ -314,21 +440,27 @@ With `source_tables`,
 and
 [`filter_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/filter_source.md)
 process all tables by default, or accept `source_table_id` to process
-only that table. Run extraction, then cleaning, then filtering for each
+only that table. Run extraction, then optional disaggregation for
+configured aggregate tables, then cleaning, then filtering for each
 desired table:
 
 ``` r
 
 config <- "pipeline/ca/deaths-2020.yaml"
 extract_source(config, source_table_id = "ca_deaths_2020_q2")
+# For an aggregate table with disaggregate configured:
+disaggregate_source(config, source_table_id = "ca_deaths_2020_q2")
 cleaned <- clean_source(config, source_table_id = "ca_deaths_2020_q2")
 filtered <- filter_source(config, source_table_id = "ca_deaths_2020_q2")
 filtered[["ca_deaths_2020_q2"]]$status
 ```
 
-For a whole-file run, omit `source_table_id` in each call. All sibling
-configs are validated before selection or processing; a runtime failure
-in one table still attempts the others, and the aggregate
+For a whole-file run, omit `source_table_id` in each call; the
+disaggregation stage then processes only configured tables, while
+unconfigured tables continue directly from extraction to cleaning.
+Selecting an unconfigured table explicitly for disaggregation fails. All
+sibling configs are validated before selection or processing; a runtime
+failure in one table still attempts the others, and the aggregate
 `source_table_stage_error` exposes successful keyed entries in `results`
 and failed entries in `failures`. The selected format path and MD5 are
 recorded in each output sidecar alongside the source-file config MD5.
@@ -342,10 +474,9 @@ adjacent `.yaml` sidecar. Pass `extracted_file` and
 not an output filename. Pass the release Data Package as `schema_path`;
 when omitted, cleaning looks for `datapackage.json` in the project root,
 not next to the source config or inside the package. The cleaned RDS has
-the fields in the supplied schema except `death_id`, plus
-`aggregate_count` and row provenance. Unpopulated fields remain typed
-missing; raw source columns remain only in the extracted artifact.
-`state` and the default individual `aggregate_count = 1` are engine
+the fields in the supplied schema except `death_id`, plus row
+provenance. Unpopulated fields remain typed missing; raw source columns
+remain only in the extracted artifact. `state` and `agency` are engine
 supplied. Each row’s `source_record` is `<source_id>:<record_locator>`.
 Source IDs cannot contain colons, so the first colon separates the ID
 from the entire locator, including any embedded colons.
@@ -361,13 +492,13 @@ release-schema or cross-field coherence validation.
 
 ## Rules and source values
 
-A rule key must be a cleaned schema field or `aggregate_count`, not an
-engine-owned field such as `state` or `record_locator`. A rule has
-`type` and its inputs (see below). Duplicate YAML keys and dependency
-cycles fail before processing rows. Missing or empty extracted strings
-become missing input. `blank_values` adds exact aliases per rule after
-extraction’s text normalization. Explicit maps must list every nonblank
-source value, including identity mappings. Common types are:
+A rule key must be a cleaned schema field, not an engine-owned field
+such as `state` or `record_locator`. A rule has `type` and its inputs
+(see below). Duplicate YAML keys and dependency cycles fail before
+processing rows. Missing or empty extracted strings become missing
+input. `blank_values` adds exact aliases per rule after extraction’s
+text normalization. Explicit maps must list every nonblank source value,
+including identity mappings. Common types are:
 
 | Type | Inputs and behavior |
 |:---|:---|

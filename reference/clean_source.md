@@ -1,6 +1,6 @@
-# Clean one extracted source without changing its record cardinality.
+# Clean extracted or disaggregated source records row-for-row.
 
-Clean one extracted source without changing its record cardinality.
+Clean extracted or disaggregated source records row-for-row.
 
 ## Usage
 
@@ -23,7 +23,8 @@ clean_source(
 
 - extracted_file:
 
-  Optional extracted RDS path for legacy configs. For inline source
+  Optional upstream RDS path for legacy configs (the disaggregated
+  artifact when configured, extraction otherwise). For inline source
   tables, an explicit path is a directory of table-ID RDS files.
 
 - cleaned_destination:

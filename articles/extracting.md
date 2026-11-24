@@ -63,8 +63,12 @@ top-level file identifiers once, not once per table.
 Required extraction fields are:
 
 - `extract$type`: `csv`, `excel`, `pdf_table`, `html`, or `none`.
-- `extract$expected_record_count`: the number of retained rows expected
-  after blank-row removal and any extract-time filtering.
+- `extract$expected_record_count`: the number of retained **source-table
+  rows** expected after blank-row removal and any extract-time
+  filtering. For aggregate counts, this is not the number of inferred
+  death records; configure that separately under top-level
+  `disaggregate` (see
+  [Cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.html#aggregate-data)).
 - `extract$columns`: selected source columns, in output order.
 
 When the archived source explicitly reports no deaths for the configured
@@ -176,8 +180,8 @@ columns are character:
 
 ``` r
 name      death_year source_state agency source_doi                         record_locator
-Jane Doe  2019       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    line 2
-John Roe  2020       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    line 3
+Jane Doe  2019       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    row 2
+John Roe  2020       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    row 3
 ```
 
 The sidecar records the selected column mapping:
@@ -195,9 +199,13 @@ expected_record_count: 2
 warnings: []
 ```
 
-Blank rows are filtered after selected-column normalization. The
-`record_locator` keeps the physical CSV line number, so locators may
-have gaps when blank rows are skipped.
+Blank rows are filtered after selected-column normalization. CSV
+`record_locator` values identify logical CSV rows (`row 2`, `row 3`,
+etc.), not physical source lines. Numbering starts after any configured
+`skip` lines and includes the header row when present; multiline cells
+still count as one row. Locators may have gaps when blank rows are
+filtered. Force re-extraction of existing CSV artifacts to replace
+cached physical-line locators.
 
 ## Extract-time filters
 
@@ -321,9 +329,23 @@ has two other rows; matching filter rules **remove** rows. Each table
 supplies its own `sheet`, `range`, and `expected_record_count`; the
 format holds shared `type`, `columns`, cleaning rules, and optional
 filtering behavior. Formats require `extract` and `clean`, and cannot
-hold file/dataset identity, table locators or expected counts,
-`clean.corrections`, or `filter.filtered_row_count`. A different layout
-can select another format with a table-level
+hold file/dataset identity, table locators,
+`extract.expected_record_count`, `disaggregate.expected_record_count`,
+`clean.corrections`, or `filter.filtered_row_count`.
+
+A format **can** declare a shared `disaggregate` definition
+(`count_column` and optional `pivot`, or `script`) without an expected
+count. Each table inheriting it must set
+`disaggregate: {expected_record_count: N}`; a complete table
+`disaggregate` block replaces rather than merges the inherited
+definition (including pivot), and `disaggregate: null` disables it for
+that table. For example, if a format selects an extracted `deaths`
+column and declares `disaggregate: {count_column: deaths}`, one table
+may supply `disaggregate: {expected_record_count: 25}` while another
+opts out with `disaggregate: null`. An omitted setting does not supply
+the required table-specific count.
+
+A different layout can select another format with a table-level
 `format: pipeline/formats/other.yaml`. To opt out of a file default, use
 `format: null` and supply complete inline `extract` and `clean` stages
 for that table. Without a format, each inline table needs complete
@@ -367,7 +389,11 @@ and filtering variations are described in
 [Cleaning](https://uclalawbehindbars.github.io/mortality-cleaning-docs/articles/cleaning.md).
 
 After fetching the physical file once, process all tables or select a
-single ID:
+single ID. For aggregate tables, explicitly call
+[`disaggregate_source()`](https://uclalawbehindbars.github.io/mortality-cleaning-docs/reference/disaggregate_source.md)
+after extraction and before cleaning; it is never performed inside
+extraction. Unconfigured tables do not get a pass-through disaggregated
+artifact:
 
 ``` r
 
@@ -376,6 +402,8 @@ all <- extract_source("pipeline/ca/deaths-2020.yaml")
 all[["ca_deaths_2020_q1"]]$rds
 one <- extract_source("pipeline/ca/deaths-2020.yaml", source_table_id = "ca_deaths_2020_q2")
 one[["ca_deaths_2020_q2"]]$yaml
+# Only when this table config declares disaggregate:
+disaggregate_source("pipeline/ca/deaths-2020.yaml", source_table_id = "ca_deaths_2020_q2")
 ```
 
 `upload_source("pipeline/ca/deaths-2020.yaml")` likewise uploads the
@@ -819,8 +847,11 @@ cache identity is current:
 - the selected format’s whole-file MD5, when using a format
 - package version
 
-Use `force = TRUE` to rewrite current artifacts. Force rewrites still
-validate the source MD5 and extraction config.
+Downstream disaggregation and cleaning check the upstream sidecar’s
+package version before using its RDS, even when a downstream cache would
+otherwise hit. After upgrading the package, rerun upstream stages before
+continuing. Use `force = TRUE` to rewrite current artifacts. Force
+rewrites still validate the source MD5 and extraction config.
 
 When extraction does rewrite artifacts, it writes each replacement to a
 temporary file in the destination directory before replacing the final
@@ -839,14 +870,14 @@ extract_source("path/to/source.yaml", force = TRUE)
 
 Extraction stops for unsupported types, missing or unknown config
 fields, MD5 mismatches, CSV parser or encoding problems, Excel parser
-problems, PDF dependency or parser problems, embedded newlines in CSV
-cells, invalid or unsupported Excel ranges, invalid PDF table entries or
-settings, missing or ambiguous selected columns, duplicate selected
-positions or Excel columns, invalid positions, out-of-range
-`excel_column` selectors, invalid PDF page/table/row references,
-headerless PDF name-based selection, PDF header mismatches, ragged PDF
-table rows, invalid/ambiguous HTML selectors or overlapping records,
-HTML parser/encoding failures, and expected record-count mismatches.
+problems, PDF dependency or parser problems, invalid or unsupported
+Excel ranges, invalid PDF table entries or settings, missing or
+ambiguous selected columns, duplicate selected positions or Excel
+columns, invalid positions, out-of-range `excel_column` selectors,
+invalid PDF page/table/row references, headerless PDF name-based
+selection, PDF header mismatches, ragged PDF table rows,
+invalid/ambiguous HTML selectors or overlapping records, HTML
+parser/encoding failures, and expected record-count mismatches.
 
 ## Script-based extraction
 
@@ -869,9 +900,11 @@ in the source data (e.g., page number). If `extract.filters` is
 configured, its rules use the selected output columns and returned
 record locators; the script need not implement filtering itself. The
 engine checks the retained row count against
-`extract.expected_record_count`. The extraction script is not
-responsible for adding generic pipeline columns like `source_state`,
-`source_doi`, or `agency`.
+`extract.expected_record_count` and requires every extracted
+`record_locator` to be nonempty and unique within the table;
+disaggregation needs unambiguous original-row provenance. The extraction
+script is not responsible for adding generic pipeline columns like
+`source_state`, `source_doi`, or `agency`.
 
 In the YAML:
 
