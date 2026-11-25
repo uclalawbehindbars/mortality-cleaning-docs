@@ -1,5 +1,9 @@
 # Changelog
 
+## dicr 0.8.0
+
+- Added crop option for PDFs.
+
 ## dicr 0.7.1
 
 - Improved error message for disaggregation.
