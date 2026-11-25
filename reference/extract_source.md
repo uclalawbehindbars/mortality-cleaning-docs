@@ -104,15 +104,16 @@ filtering remains separate and retains typed comparisons.
 PDF extraction requires Python plus the pinned `pdfplumber` dependency
 in the supported environment. PDF passwords are used only to open
 public-record PDFs and are not written to sidecars; sidecars record only
-whether a password was provided. PDF v1 does not perform OCR,
-cropping/region selection, or cross-page row continuation. Extracted
-values receive mechanical text normalization only; source value
-interpretation is left to later cleaning stages. Unselected parsed
-columns are omitted from the RDS, but nonblank dropped columns produce
-nonfatal runtime warnings and structured sidecar warnings. Unselected
-HTML page content is not a dropped column and produces no dropped-column
-warning. A top-level `encoding` may override archived HTML
-character-encoding detection.
+whether a password was provided. Optional PDF `crop` bounding boxes (x0,
+top, x1, bottom) are applied to pages before table detection;
+table-level boxes override a top-level default. PDF v1 does not perform
+OCR or cross-page row continuation. Extracted values receive mechanical
+text normalization only; source value interpretation is left to later
+cleaning stages. Unselected parsed columns are omitted from the RDS, but
+nonblank dropped columns produce nonfatal runtime warnings and
+structured sidecar warnings. Unselected HTML page content is not a
+dropped column and produces no dropped-column warning. A top-level
+`encoding` may override archived HTML character-encoding detection.
 
 Extracted artifacts are written to destination-local temporary files
 before final replacement. If a handled write or replacement error

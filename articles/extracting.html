@@ -697,21 +697,22 @@ output contract used by CSV and Excel.</p>
 <span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
 <span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
 <span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
-<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
-<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2</span><span class="kw">]</span></span>
-<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a><span class="at">      </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a><span class="at">        </span><span class="fu">snap_tolerance</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
-<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
-<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span></code></pre></div>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="at">  </span><span class="fu">crop</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">0</span><span class="kw">,</span><span class="at"> </span><span class="dv">50</span><span class="kw">,</span><span class="at"> </span><span class="dv">600</span><span class="kw">,</span><span class="at"> </span><span class="dv">750</span><span class="kw">]</span></span>
+<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
+<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2</span><span class="kw">]</span></span>
+<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a><span class="at">      </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a><span class="at">      </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a><span class="at">      </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a><span class="at">      </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a><span class="at">        </span><span class="fu">snap_tolerance</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
+<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
+<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Date</span></span>
+<span id="cb20-33"><a href="#cb20-33" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span></code></pre></div>
 <p>Each <code>extract$tables</code> entry describes a detected table
 unit:</p>
 <ul>
@@ -741,14 +742,26 @@ rows are fatal.</li>
 <code>table_settings</code>: optional per-entry
 <code>pdfplumber</code> table settings. These override top-level
 <code>extract$table_settings</code> only for that table entry.</li>
+<li>
+<code>crop</code>: optional per-entry PDF bounding box
+<code>[x0, top, x1, bottom]</code>, overriding the top-level
+<code>extract$crop</code> default. The four finite numeric coordinates
+use pdfplumber’s PDF point coordinates, with origin at the top left;
+<code>x1 &gt; x0</code> and <code>bottom &gt; top</code>. The page is
+cropped before table detection, so <code>index</code> refers to tables
+detected <strong>within the crop</strong>. pdfplumber rejects boxes
+outside the page.</li>
 </ul>
-<p>Top-level <code>extract$table_settings</code> are passed to all
-configured table entries. The supported setting names mirror the
-<code>pdfplumber</code> table extraction settings used by this package,
-including <code>vertical_strategy</code>,
-<code>horizontal_strategy</code>, explicit line coordinates, tolerance
-settings, edge length, and minimum-word settings. Explicit vertical or
-horizontal lines must be numeric coordinates.</p>
+<p>Top-level <code>extract$crop</code> applies to each entry without its
+own <code>crop</code>. Crop boxes are recorded in the sidecar (including
+resolved per-entry boxes); pages without a crop are unchanged. Top-level
+<code>extract$table_settings</code> are passed to all configured table
+entries. The supported setting names mirror the <code>pdfplumber</code>
+table extraction settings used by this package, including
+<code>vertical_strategy</code>, <code>horizontal_strategy</code>,
+explicit line coordinates, tolerance settings, edge length, and
+minimum-word settings. Explicit vertical or horizontal lines must be
+numeric coordinates.</p>
 <p>PDF columns use the same <code>extract$columns</code> shape as CSV
 columns:</p>
 <ul>
@@ -773,17 +786,19 @@ copying source data:</p>
 <span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">extract_options</span><span class="kw">:</span></span>
 <span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="at">  </span><span class="fu">locator_style</span><span class="kw">:</span><span class="at"> pdf_page_table_row</span></span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="at">  </span><span class="fu">password_provided</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
-<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="at">    </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="at">    </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="at">    </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
-<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a><span class="at">    </span><span class="fu">table_settings</span><span class="kw">:</span></span>
-<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a><span class="at">      </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
-<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a><span class="at">      </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span></code></pre></div>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="at">  </span><span class="fu">crop</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">0</span><span class="kw">,</span><span class="at"> </span><span class="dv">50</span><span class="kw">,</span><span class="at"> </span><span class="dv">600</span><span class="kw">,</span><span class="at"> </span><span class="dv">750</span><span class="kw">]</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="at">  </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="at">    </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="at">    </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="at">  </span><span class="fu">tables</span><span class="kw">:</span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">pages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1</span><span class="kw">]</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="at">    </span><span class="fu">index</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="at">    </span><span class="fu">header</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a><span class="at">    </span><span class="fu">skip_rows</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a><span class="at">    </span><span class="fu">crop</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">0</span><span class="kw">,</span><span class="at"> </span><span class="dv">50</span><span class="kw">,</span><span class="at"> </span><span class="dv">600</span><span class="kw">,</span><span class="at"> </span><span class="dv">750</span><span class="kw">]</span></span>
+<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a><span class="at">    </span><span class="fu">table_settings</span><span class="kw">:</span></span>
+<span id="cb21-16"><a href="#cb21-16" tabindex="-1"></a><span class="at">      </span><span class="fu">vertical_strategy</span><span class="kw">:</span><span class="at"> lines</span></span>
+<span id="cb21-17"><a href="#cb21-17" tabindex="-1"></a><span class="at">      </span><span class="fu">horizontal_strategy</span><span class="kw">:</span><span class="at"> lines</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="pdf-dependency-expectations-and-local-setup">PDF dependency expectations and local setup<a class="anchor" aria-label="anchor" href="#pdf-dependency-expectations-and-local-setup"></a>
 </h3>
@@ -836,9 +851,8 @@ until an approved credential policy exists.</p>
 <ul>
 <li>No OCR: scanned or image-only PDFs are unsupported unless text
 tables are already embedded in the PDF.</li>
-<li>No cropping or region selection: extraction runs table detection on
-the configured page and table index, not on a manually cropped page
-area.</li>
+<li>Cropping is rectangular only; it does not perform semantic region
+detection.</li>
 <li>No cross-page row continuation: each detected table row becomes one
 candidate extraction row. Rows split across pages are not stitched
 together automatically.</li>

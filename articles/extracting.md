@@ -662,6 +662,7 @@ extract:
   table_settings:
     vertical_strategy: lines
     horizontal_strategy: lines
+  crop: [0, 50, 600, 750]
   tables:
     - pages: [1]
       index: 1
@@ -699,10 +700,19 @@ Each `extract$tables` entry describes a detected table unit:
 - `table_settings`: optional per-entry `pdfplumber` table settings.
   These override top-level `extract$table_settings` only for that table
   entry.
+- `crop`: optional per-entry PDF bounding box `[x0, top, x1, bottom]`,
+  overriding the top-level `extract$crop` default. The four finite
+  numeric coordinates use pdfplumber’s PDF point coordinates, with
+  origin at the top left; `x1 > x0` and `bottom > top`. The page is
+  cropped before table detection, so `index` refers to tables detected
+  **within the crop**. pdfplumber rejects boxes outside the page.
 
-Top-level `extract$table_settings` are passed to all configured table
-entries. The supported setting names mirror the `pdfplumber` table
-extraction settings used by this package, including `vertical_strategy`,
+Top-level `extract$crop` applies to each entry without its own `crop`.
+Crop boxes are recorded in the sidecar (including resolved per-entry
+boxes); pages without a crop are unchanged. Top-level
+`extract$table_settings` are passed to all configured table entries. The
+supported setting names mirror the `pdfplumber` table extraction
+settings used by this package, including `vertical_strategy`,
 `horizontal_strategy`, explicit line coordinates, tolerance settings,
 edge length, and minimum-word settings. Explicit vertical or horizontal
 lines must be numeric coordinates.
@@ -729,6 +739,7 @@ extractor_type: pdf_table
 extract_options:
   locator_style: pdf_page_table_row
   password_provided: false
+  crop: [0, 50, 600, 750]
   table_settings:
     vertical_strategy: lines
     horizontal_strategy: lines
@@ -737,6 +748,7 @@ extract_options:
     index: 1
     header: true
     skip_rows: []
+    crop: [0, 50, 600, 750]
     table_settings:
       vertical_strategy: lines
       horizontal_strategy: lines
@@ -794,9 +806,8 @@ The v1 PDF extractor is intentionally limited:
 
 - No OCR: scanned or image-only PDFs are unsupported unless text tables
   are already embedded in the PDF.
-- No cropping or region selection: extraction runs table detection on
-  the configured page and table index, not on a manually cropped page
-  area.
+- Cropping is rectangular only; it does not perform semantic region
+  detection.
 - No cross-page row continuation: each detected table row becomes one
   candidate extraction row. Rows split across pages are not stitched
   together automatically.

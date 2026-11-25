@@ -143,8 +143,10 @@ Post-clean filtering remains separate and retains typed comparisons.</p>
 <p>PDF extraction requires Python plus the pinned <code>pdfplumber</code> dependency in
 the supported environment. PDF passwords are used only to open public-record
 PDFs and are not written to sidecars; sidecars record only whether a
-password was provided. PDF v1 does not perform OCR, cropping/region
-selection, or cross-page row continuation. Extracted values receive
+password was provided. Optional PDF <code>crop</code> bounding boxes (x0, top, x1,
+bottom) are applied to pages before table detection; table-level boxes
+override a top-level default. PDF v1 does not perform OCR or cross-page
+row continuation. Extracted values receive
 mechanical text normalization only; source value interpretation is left to
 later cleaning stages. Unselected parsed columns are omitted from the RDS,
 but nonblank dropped columns produce nonfatal runtime warnings and
