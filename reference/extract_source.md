@@ -66,18 +66,20 @@ select columns by source header name or 1-based position; headerless PDF
 configs select columns by 1-based position. HTML configs select record
 elements with `extract$record_selector` (CSS) and require
 `extract$expected_record_count` and a nonempty `extract$columns` list.
-Each HTML column has a `source` label, an optional scoped CSS `selector`
-(default: the record element), and an optional `attribute` (default: DOM
-text). `html_table` configs use a CSS `table_selector` and select
-columns by the headers returned by rvest's `html_table()` or by 1-based
-position; rows retain table-index and row-index locators. Both HTML
-methods read only the local artifact: it never fetches, follows links,
-or paginates. Record locators refer to raw matches before blank
-filtering; HTML sidecars record selectors, encoding selection (`auto` or
-override) and a declared page charset when present, field mappings, and
-structured missing/blank-record warnings. Source-specific prose
-interpretation, including dates, names, IDs, and locations embedded in
-announcement bodies, belongs to cleaning.
+Any selected column may specify a nonempty `output_name` to override its
+derived output name verbatim; the resolved name is recorded as `output`
+in the sidecar. Each HTML column has a `source` label, an optional
+scoped CSS `selector` (default: the record element), and an optional
+`attribute` (default: DOM text). `html_table` configs use a CSS
+`table_selector` and select columns by the headers returned by rvest's
+`html_table()` or by 1-based position; rows retain table-index and
+row-index locators. Both HTML methods read only the local artifact: it
+never fetches, follows links, or paginates. Record locators refer to raw
+matches before blank filtering; HTML sidecars record selectors, encoding
+selection (`auto` or override) and a declared page charset when present,
+field mappings, and structured missing/blank-record warnings.
+Source-specific prose interpretation, including dates, names, IDs, and
+locations embedded in announcement bodies, belongs to cleaning.
 
 Optional `extract.filters` rules remove matching selected records from
 CSV, Excel, PDF-table, HTML, HTML-table, or extraction-script output

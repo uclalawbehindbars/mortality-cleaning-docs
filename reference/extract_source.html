@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,9 @@ header name or Excel column letter. Headered PDF table configs select columns
 by source header name or 1-based position; headerless PDF configs select
 columns by 1-based position. HTML configs select record elements with
 <code>extract$record_selector</code> (CSS) and require <code>extract$expected_record_count</code>
-and a nonempty <code>extract$columns</code> list. Each HTML column has a <code>source</code> label,
+and a nonempty <code>extract$columns</code> list. Any selected column may specify a
+nonempty <code>output_name</code> to override its derived output name verbatim; the
+resolved name is recorded as <code>output</code> in the sidecar. Each HTML column has a <code>source</code> label,
 an optional scoped CSS <code>selector</code> (default: the record element), and an
 optional <code>attribute</code> (default: DOM text). <code>html_table</code> configs use a CSS
 <code>table_selector</code> and select columns by the headers returned by rvest's

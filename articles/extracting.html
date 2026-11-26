@@ -19,7 +19,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dicr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -198,10 +198,14 @@ within <code>extract$tables</code> and require PDF columns to be
 selected by <code>position</code>. Output names are based on source
 names or parser-generated names, cleaned with the same deterministic
 output-name rules.</p>
-<p>Configured output-name overrides are intentionally unsupported in v1.
-Output names are derived from source names using snake-case cleaning.
-HTML rejects cleaned-name collisions; tabular extractors repair
-duplicates deterministically.</p>
+<p>Each column may optionally set <code>output_name</code> to a nonempty
+string to override its derived output name. Overrides are used verbatim
+(they are not snake-case cleaned), and appear as <code>output</code> in
+the sidecar. Without an override, output names are derived from source
+names using snake-case cleaning. HTML rejects output-name collisions;
+tabular extractors repair duplicates deterministically. Use the final
+output name in extract-time filters and downstream cleaning rules. The
+sidecar’s <code>output</code> field is metadata, not a config field.</p>
 </div>
 <div class="section level2">
 <h2 id="csv-example">CSV example<a class="anchor" aria-label="anchor" href="#csv-example"></a>
@@ -227,7 +231,8 @@ John Roe,2020,</code></pre>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="at">  </span><span class="fu">expected_record_count</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">columns</span><span class="kw">:</span></span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span></code></pre></div>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">      </span><span class="fu">output_name</span><span class="kw">:</span><span class="at"> person_name</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span></code></pre></div>
 <p>run extraction after the file has been fetched into the deterministic
 source path:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -238,13 +243,13 @@ source path:</p>
 one-output configs; use the ID in your configuration (not
 <code>result$rds</code>). The RDS contains selected columns followed by
 provenance columns. All columns are character:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>name      death_year source_state agency source_doi                         record_locator</span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>person_name death_year source_state agency source_doi                         record_locator</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>Jane Doe  <span class="dv">2019</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    row <span class="dv">2</span></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>John Roe  <span class="dv">2020</span>       ca           CDCR          doi<span class="sc">:</span><span class="fl">10.70122</span><span class="sc">/</span>FK2<span class="sc">/</span>ABC123<span class="sc">/</span>FILEABC    row <span class="dv">3</span></span></code></pre></div>
 <p>The sidecar records the selected column mapping:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Name</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> name</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> person_name</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">  </span><span class="fu">position</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> Death Year</span></span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> death_year</span></span>
@@ -623,19 +628,19 @@ example:</p>
 <span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> href</span></span>
 <span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> record_id</span></span>
 <span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="at">      </span><span class="fu">attribute</span><span class="kw">:</span><span class="at"> id</span></span></code></pre></div>
-<p>CSS is the only supported selector language: XPath and output-name
-overrides are unsupported. Multiple field matches, invalid CSS,
-overlapping record elements, parser/encoding errors, unknown config
-fields, and expected-count mismatches stop extraction. No field match
-(or a missing attribute) on an individual record yields <code>""</code>;
-if a field is missing from <strong>every</strong> matched record,
-extraction emits an <code>html_field_missing</code> runtime warning and
-structured sidecar warning. Zero record matches emit
-<code>html_no_records</code> (even if the expected count is zero), while
-records all discarded as blank emit <code>html_all_records_blank</code>.
-Blank records are filtered after normalization, but duplicate nonblank
-records are retained. Individual absences do not warn. A count mismatch
-remains fatal after filtering.</p>
+<p>CSS is the only supported selector language: XPath is unsupported.
+Multiple field matches, invalid CSS, overlapping record elements,
+parser/encoding errors, unknown config fields, and expected-count
+mismatches stop extraction. No field match (or a missing attribute) on
+an individual record yields <code>""</code>; if a field is missing from
+<strong>every</strong> matched record, extraction emits an
+<code>html_field_missing</code> runtime warning and structured sidecar
+warning. Zero record matches emit <code>html_no_records</code> (even if
+the expected count is zero), while records all discarded as blank emit
+<code>html_all_records_blank</code>. Blank records are filtered after
+normalization, but duplicate nonblank records are retained. Individual
+absences do not warn. A count mismatch remains fatal after
+filtering.</p>
 <p>HTML <code>record_locator</code> values are <code>Record 1</code>,
 <code>Record 2</code>, etc., from raw matches before blank filtering, so
 gaps are possible. The sidecar records

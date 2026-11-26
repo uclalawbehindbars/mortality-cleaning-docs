@@ -1,5 +1,9 @@
 # Changelog
 
+## dicr 0.9.0
+
+- Added `output_name` option to column extract configs.
+
 ## dicr 0.8.0
 
 - Added crop option for PDFs.

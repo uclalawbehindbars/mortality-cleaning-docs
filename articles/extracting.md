@@ -126,10 +126,14 @@ or Excel range. Headerless CSV configs must select columns by
 Output names are based on source names or parser-generated names,
 cleaned with the same deterministic output-name rules.
 
-Configured output-name overrides are intentionally unsupported in v1.
-Output names are derived from source names using snake-case cleaning.
-HTML rejects cleaned-name collisions; tabular extractors repair
-duplicates deterministically.
+Each column may optionally set `output_name` to a nonempty string to
+override its derived output name. Overrides are used verbatim (they are
+not snake-case cleaned), and appear as `output` in the sidecar. Without
+an override, output names are derived from source names using snake-case
+cleaning. HTML rejects output-name collisions; tabular extractors repair
+duplicates deterministically. Use the final output name in extract-time
+filters and downstream cleaning rules. The sidecar’s `output` field is
+metadata, not a config field.
 
 ## CSV example
 
@@ -160,6 +164,7 @@ extract:
   expected_record_count: 2
   columns:
     - source: Name
+      output_name: person_name
     - source: Death Year
 ```
 
@@ -179,7 +184,7 @@ The RDS contains selected columns followed by provenance columns. All
 columns are character:
 
 ``` r
-name      death_year source_state agency source_doi                         record_locator
+person_name death_year source_state agency source_doi                         record_locator
 Jane Doe  2019       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    row 2
 John Roe  2020       ca           CDCR          doi:10.70122/FK2/ABC123/FILEABC    row 3
 ```
@@ -189,7 +194,7 @@ The sidecar records the selected column mapping:
 ``` yaml
 columns:
 - source: Name
-  output: name
+  output: person_name
   position: 1
 - source: Death Year
   output: death_year
@@ -585,18 +590,18 @@ extract:
       attribute: id
 ```
 
-CSS is the only supported selector language: XPath and output-name
-overrides are unsupported. Multiple field matches, invalid CSS,
-overlapping record elements, parser/encoding errors, unknown config
-fields, and expected-count mismatches stop extraction. No field match
-(or a missing attribute) on an individual record yields `""`; if a field
-is missing from **every** matched record, extraction emits an
-`html_field_missing` runtime warning and structured sidecar warning.
-Zero record matches emit `html_no_records` (even if the expected count
-is zero), while records all discarded as blank emit
-`html_all_records_blank`. Blank records are filtered after
-normalization, but duplicate nonblank records are retained. Individual
-absences do not warn. A count mismatch remains fatal after filtering.
+CSS is the only supported selector language: XPath is unsupported.
+Multiple field matches, invalid CSS, overlapping record elements,
+parser/encoding errors, unknown config fields, and expected-count
+mismatches stop extraction. No field match (or a missing attribute) on
+an individual record yields `""`; if a field is missing from **every**
+matched record, extraction emits an `html_field_missing` runtime warning
+and structured sidecar warning. Zero record matches emit
+`html_no_records` (even if the expected count is zero), while records
+all discarded as blank emit `html_all_records_blank`. Blank records are
+filtered after normalization, but duplicate nonblank records are
+retained. Individual absences do not warn. A count mismatch remains
+fatal after filtering.
 
 HTML `record_locator` values are `Record 1`, `Record 2`, etc., from raw
 matches before blank filtering, so gaps are possible. The sidecar
