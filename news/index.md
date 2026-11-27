@@ -1,5 +1,10 @@
 # Changelog
 
+## dicr 0.9.1
+
+- Adjusted column validation during formatted extraction to align with
+  other column validation rules.
+
 ## dicr 0.9.0
 
 - Added `output_name` option to column extract configs.
